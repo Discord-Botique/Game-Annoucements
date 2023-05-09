@@ -32,5 +32,5 @@ export interface Command {
     | SlashCommandSubcommandsOnlyBuilder;
   execute(
     interaction: CommandInteraction | ContextMenuCommandInteraction
-  ): Promise<void>;
+  ): Promise<unknown>;
 }

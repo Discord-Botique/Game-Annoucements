@@ -6,6 +6,7 @@ import { logtail } from "./utils/logtailConfig";
 import { Command } from "./commands/command";
 import { subscribe } from "./commands/subscribe";
 import { unsubscribe } from "./commands/unsubscribe";
+import { list } from "./commands/list";
 
 config();
 
@@ -24,7 +25,7 @@ events.forEach((event) => {
   else client.on(event.name, (...args) => event.execute(...args));
 });
 
-const commands: Command[] = [subscribe, unsubscribe];
+const commands: Command[] = [subscribe, unsubscribe, list];
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isContextMenuCommand() && !interaction.isChatInputCommand())

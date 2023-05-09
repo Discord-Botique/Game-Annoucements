@@ -71,6 +71,18 @@ export const getSteamGameNews = async (gameId: string) => {
   return newsItems[0];
 };
 
+export const getSteamSubscriptions = async (guildId: string) => {
+  const { data } = await supabase
+    .from("steam_subscriptions")
+    .select()
+    .match({
+      server_id: guildId,
+    })
+    .order("channel_id", { ascending: true });
+
+  return data;
+};
+
 export const getSteamSubscription = async ({
   gameId,
   channelId,

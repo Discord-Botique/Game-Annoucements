@@ -3,8 +3,12 @@ import differenceInHours from "date-fns/differenceInHours";
 import endOfHour from "date-fns/endOfHour";
 import { Client } from "discord.js";
 import { logtail } from "./logtailConfig";
-import { supabase } from "./supabase";
-import { getSteamGameName, getSteamGameNews, NewsItem } from "./api";
+import {
+  getSteamGameName,
+  getSteamGameNews,
+  getSteamSubscriptions,
+  NewsItem,
+} from "./api";
 
 const triggerMessages = async (client: Client<true>) => {
   const guilds = await client.guilds.fetch();
@@ -15,14 +19,9 @@ const triggerMessages = async (client: Client<true>) => {
     guilds.map(async (oathGuild) => {
       const guild = await oathGuild.fetch();
 
-      const { data } = await supabase
-        .from("steam_subscriptions")
-        .select()
-        .match({
-          server_id: guild.id,
-        });
+      const subscriptions = await getSteamSubscriptions(guild.id);
 
-      data?.map(async (subscription) => {
+      subscriptions?.map(async (subscription) => {
         const channel = await guild.channels.fetch(subscription.channel_id);
 
         if (!channel?.isTextBased()) return null;
