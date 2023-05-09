@@ -16,14 +16,20 @@ const commandsRoute = process.env.TEST_SERVER_ID
     )
   : Routes.applicationCommands(process.env.CLIENT_ID);
 
+console.log(commandsRoute);
+
 rest
   .put(commandsRoute, {
     body: commands.map((command) => command.data.toJSON()),
   })
-  .then(() => logtail.debug("Successfully registered application commands."))
-  .catch((err) =>
-    logtail.error(
+  .then(async () => {
+    console.log("Successful");
+    await logtail.debug("Successfully registered application commands.");
+  })
+  .catch(async (err) => {
+    console.log(err);
+    await logtail.error(
       "Error registering application commands.",
       JSON.parse(JSON.stringify(err))
-    )
-  );
+    );
+  });
