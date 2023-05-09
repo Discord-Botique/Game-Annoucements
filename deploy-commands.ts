@@ -9,15 +9,15 @@ import { list } from "./commands/list";
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
 const commands: Command[] = [subscribe, unsubscribe, list];
 
-const guildCommandsRoute = Routes.applicationGuildCommands(
-  process.env.CLIENT_ID,
-  process.env.TEST_SERVER_ID
-);
-
-const commandsRoute = Routes.applicationCommands(process.env.CLIENT_ID);
+const commandsRoute = process.env.TEST_SERVER_ID
+  ? Routes.applicationGuildCommands(
+      process.env.CLIENT_ID,
+      process.env.TEST_SERVER_ID
+    )
+  : Routes.applicationCommands(process.env.CLIENT_ID);
 
 rest
-  .put(process.env.TEST ? guildCommandsRoute : commandsRoute, {
+  .put(commandsRoute, {
     body: commands.map((command) => command.data.toJSON()),
   })
   .then(() => logtail.debug("Successfully registered application commands."))
