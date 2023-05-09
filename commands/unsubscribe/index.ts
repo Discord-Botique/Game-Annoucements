@@ -1,7 +1,7 @@
 import { Command } from "../command";
 import { steam } from "./steam";
 import { ChatInputCommandInteraction } from "discord.js";
-import { createSubscriptionCommand, Type, SubCommand } from "../utils";
+import { createSubscriptionCommand, SubCommand, Type } from "../utils";
 
 const subCommands: Record<
   SubCommand,
@@ -10,8 +10,8 @@ const subCommands: Record<
   steam,
 };
 
-export const subscribe: Command = {
-  data: createSubscriptionCommand({ type: Type.SUBSCRIBE }),
+export const unsubscribe: Command = {
+  data: createSubscriptionCommand({ type: Type.UNSUBSCRIBE }),
   async execute(interaction) {
     if (!interaction.isChatInputCommand()) return;
 

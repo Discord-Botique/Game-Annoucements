@@ -3,7 +3,7 @@ import { logtail } from "../../utils/logtailConfig";
 import {
   getSteamSubscription,
   getSteamGameName,
-  createSteamSubscription,
+  deleteSteamSubscription,
 } from "../../utils/api";
 import { getGameId } from "../../utils/utils";
 
@@ -29,24 +29,17 @@ export const steam = async (
       channelId,
     });
 
-    if (subscription) {
-      return await interaction.reply(
-        `${channelMention(
-          interaction.channelId
-        )} is already subscribed to ${gameName}.`
-      );
-    } else {
-      await createSteamSubscription({
-        gameId,
-        guildId,
-        channelId,
+    if (!subscription)
+      return interaction.reply({
+        content: `Error: You are not subscribed to ${gameName} on this channel.`,
+        ephemeral: true,
       });
-    }
 
+    await deleteSteamSubscription(subscription.id);
     await interaction.reply(
-      `Subscribed to ${gameName}! ${channelMention(
+      `Unsubscribed to ${gameName}! ${channelMention(
         interaction.channelId
-      )} will now receive announcements for this game.`
+      )} will no longer receive announcements for this game.`
     );
   } catch (error) {
     await logtail.error(String(error), {

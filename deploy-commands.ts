@@ -3,9 +3,10 @@ import { Routes } from "discord-api-types/v9";
 import { logtail } from "./utils/logtailConfig";
 import { Command } from "./commands/command";
 import { subscribe } from "./commands/subscribe";
+import { unsubscribe } from "./commands/unsubscribe";
 
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
-const commands: Command[] = [subscribe];
+const commands: Command[] = [subscribe, unsubscribe];
 
 const guildCommandsRoute = Routes.applicationGuildCommands(
   process.env.CLIENT_ID,
