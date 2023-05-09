@@ -34,7 +34,7 @@ export const list: Command = {
       }
 
       const gameName = await getSteamGameName(subscription.game_id);
-      message += `• ${gameName}\n`;
+      message += `• ${gameName} (ID: ${subscription.game_id})\n`;
 
       if (index < subscriptions.length - 1) await updateMessage(index + 1);
     };
