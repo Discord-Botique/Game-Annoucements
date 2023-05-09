@@ -4,6 +4,7 @@ import { Client, ClientEvents } from "discord.js";
 import type { Event } from "./events/event";
 import { logtail } from "./utils/logtailConfig";
 import { Command } from "./commands/command";
+import { subscribe } from "./commands/subscribe";
 
 config();
 
@@ -22,7 +23,7 @@ events.forEach((event) => {
   else client.on(event.name, (...args) => event.execute(...args));
 });
 
-const commands: Command[] = [];
+const commands: Command[] = [subscribe];
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isContextMenuCommand() && !interaction.isChatInputCommand())
