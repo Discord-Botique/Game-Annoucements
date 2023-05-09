@@ -6,7 +6,7 @@
   "author": "Luis Augusto",
   "license": "MIT",
   "scripts": {
-    "prepare": "./generate-types.sh",
+    "generate": "./generate-types.sh",
     "start": "yarn deploy-commands && node .",
     "watch": "tsc --watch",
     "deploy-commands": "node deploy-commands.js",

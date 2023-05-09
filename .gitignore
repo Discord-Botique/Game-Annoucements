@@ -9,4 +9,3 @@ yarn-error.log
 
 .DS_Store
 .husky
-utils/supabase.types.ts
