@@ -9,12 +9,7 @@ import { list } from "./commands/list";
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
 const commands: Command[] = [subscribe, unsubscribe, list];
 
-const commandsRoute = process.env.TEST_SERVER_ID
-  ? Routes.applicationGuildCommands(
-      process.env.CLIENT_ID,
-      process.env.TEST_SERVER_ID
-    )
-  : Routes.applicationCommands(process.env.CLIENT_ID);
+const commandsRoute = Routes.applicationCommands(process.env.CLIENT_ID);
 
 console.log(commandsRoute);
 
