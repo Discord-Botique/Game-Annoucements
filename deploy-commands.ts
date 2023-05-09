@@ -9,22 +9,21 @@ import { list } from "./commands/list";
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
 const commands: Command[] = [subscribe, unsubscribe, list];
 
-const commandsRoute = Routes.applicationCommands(process.env.CLIENT_ID);
-
-console.log(commandsRoute);
+const commandsRoute = process.env.TEST_SERVER_ID
+  ? Routes.applicationGuildCommands(
+      process.env.CLIENT_ID,
+      process.env.TEST_SERVER_ID
+    )
+  : Routes.applicationCommands(process.env.CLIENT_ID);
 
 rest
   .put(commandsRoute, {
     body: commands.map((command) => command.data.toJSON()),
   })
-  .then(async () => {
-    console.log("Successful");
-    await logtail.debug("Successfully registered application commands.");
-  })
-  .catch(async (err) => {
-    console.log(err);
-    await logtail.error(
+  .then(() => logtail.debug("Successfully registered application commands."))
+  .catch((err) =>
+    logtail.error(
       "Error registering application commands.",
       JSON.parse(JSON.stringify(err))
-    );
-  });
+    )
+  );

@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "generate": "./generate-types.sh",
-    "start": "yarn deploy-commands && node .",
+    "start": "node .",
     "watch": "tsc --watch",
     "deploy-commands": "node deploy-commands.js",
     "build": "tsc",
