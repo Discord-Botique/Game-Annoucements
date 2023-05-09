@@ -13,7 +13,29 @@ interface AppDetails {
     | undefined;
 }
 
-export const getSteamGameName = async (gameId: number) => {
+export interface NewsItem {
+  gid: string;
+  title: string;
+  url: string;
+  is_external_url: true;
+  author: "erics";
+  contents: string;
+  feedlabel: string;
+  date: number;
+  feedname: string;
+  appid: number;
+  tags: string[];
+}
+
+export interface AppNews {
+  appnews: {
+    appid?: number;
+    newsitems?: NewsItem[];
+    count?: number;
+  };
+}
+
+export const getSteamGameName = async (gameId: number | string) => {
   const gameInfo = await axios.get<AppDetails>(
     "https://store.steampowered.com/api/appdetails",
     {
@@ -28,6 +50,25 @@ export const getSteamGameName = async (gameId: number) => {
     throw new Error(`Could not find the game ${gameId} in the Steam Database.`);
 
   return gameData.data.name;
+};
+
+export const getSteamGameNews = async (gameId: string) => {
+  const gameInfo = await axios.get<AppNews>(
+    "http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002",
+    {
+      params: {
+        appid: gameId,
+        maxlength: 500,
+        count: 1,
+      },
+    }
+  );
+
+  const newsItems = gameInfo.data.appnews.newsitems;
+  if (!newsItems)
+    throw new Error(`Could not find the game ${gameId} in the Steam Database.`);
+
+  return newsItems[0];
 };
 
 export const getSteamSubscription = async ({
