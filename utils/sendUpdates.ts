@@ -36,7 +36,7 @@ const triggerMessages = async (client: Client<true>) => {
         const date = new Date(newsItem.date * 1000);
 
         // check if date is longer than an hour ago
-        if (differenceInHours(new Date(), date) > 24) return null;
+        if (differenceInHours(new Date(), date) > 1) return null;
 
         await logtail.debug("Sending announcement message", {
           item: JSON.stringify(newsItem),
@@ -78,16 +78,16 @@ const triggerMessages = async (client: Client<true>) => {
 };
 
 export const sendUpdates = async (client: Client<true>) => {
-  const timeUntilNextDay = differenceInMilliseconds(
+  const timeUntilNextHour = differenceInMilliseconds(
     endOfHour(new Date()),
     new Date()
   );
-  await logtail.debug(`Next update check in ${timeUntilNextDay}ms`);
+  await logtail.debug(`Next update check in ${timeUntilNextHour}ms`);
 
   setTimeout(() => {
     triggerMessages(client).catch(async (err) => {
       console.error(err);
       await logtail.error("There was an error sending announcement messages");
     });
-  }, 60000);
+  }, timeUntilNextHour);
 };
