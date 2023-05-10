@@ -21,7 +21,7 @@ export const steam = async (
 
   try {
     const gameId = getGameId(idOrUrl);
-    const gameName = await getSteamGameName(gameId);
+    const gameName = await getSteamGameName(gameId, true);
     const channelId = interaction.channelId;
 
     const subscription = await getSteamSubscription({
