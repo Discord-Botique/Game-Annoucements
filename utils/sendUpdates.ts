@@ -11,6 +11,7 @@ import {
 } from "./api";
 
 const triggerMessages = async (client: Client<true>) => {
+  logtail.debug("Checking for new announcements");
   const guilds = await client.guilds.fetch();
 
   const fetchedNewsItems: NewsItem[] = [];
@@ -37,6 +38,9 @@ const triggerMessages = async (client: Client<true>) => {
         // check if date is longer than an hour ago
         if (differenceInHours(new Date(), date) > 1) return null;
 
+        await logtail.debug("Sending announcement message", {
+          item: JSON.stringify(newsItem),
+        });
         const gameName = await getSteamGameName(subscription.game_id);
 
         const content = newsItem.contents.replace(
