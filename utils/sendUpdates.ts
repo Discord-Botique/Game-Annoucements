@@ -36,10 +36,11 @@ const triggerMessages = async (client: Client<true>) => {
         const date = new Date(newsItem.date * 1000);
 
         // check if date is longer than an hour ago
-        if (differenceInHours(new Date(), date) > 1) return null;
+        if (differenceInHours(new Date(), date) > 24) return null;
 
         await logtail.debug("Sending announcement message", {
           item: JSON.stringify(newsItem),
+          difference: differenceInHours(new Date(), date),
         });
         const gameName = await getSteamGameName(subscription.game_id);
 
@@ -88,5 +89,5 @@ export const sendUpdates = async (client: Client<true>) => {
       console.error(err);
       await logtail.error("There was an error sending announcement messages");
     });
-  }, timeUntilNextDay);
+  }, 60000);
 };
