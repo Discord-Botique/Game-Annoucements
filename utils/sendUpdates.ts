@@ -51,8 +51,8 @@ const triggerMessages = async (client: Client<true>) => {
 
         const url = content.match(/(https?:\/\/[^\s]+)/g)?.[0] ?? "";
 
-        await channel
-          .send({
+        try {
+          await channel.send({
             content: `A new ${newsItem.feedlabel} news item for ${gameName} has been posted!`,
             embeds: [
               {
@@ -65,10 +65,10 @@ const triggerMessages = async (client: Client<true>) => {
                 timestamp: new Date(newsItem.date * 1000).toISOString(),
               },
             ],
-          })
-          .catch((e) =>
-            logtail.error("Error sending message", { error: String(e) })
-          );
+          });
+        } catch (e) {
+          await logtail.error("Error sending message", { error: String(e) });
+        }
       });
     })
   );
