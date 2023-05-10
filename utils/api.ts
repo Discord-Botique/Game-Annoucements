@@ -36,9 +36,17 @@ export interface AppNews {
 }
 
 export const getSteamGameName = async (
-  gameId: number | string,
-  throwOnError?: boolean
-): Promise<string> => {
+  gameId: number
+): Promise<string | undefined> => {
+  const { data } = await supabase
+    .from("steam_games")
+    .select("name, updated_at")
+    .eq("id", gameId)
+    .maybeSingle();
+
+  if (data && new Date(data.updated_at).getTime() > Date.now() - 2592000000)
+    return data.name;
+
   const gameInfo = await axios.get<AppDetails>(
     "https://store.steampowered.com/api/appdetails",
     {
@@ -49,14 +57,23 @@ export const getSteamGameName = async (
   );
 
   const gameData = gameInfo?.data[gameId];
-  const isSuccess = gameData?.success;
-  if (!isSuccess && throwOnError)
-    throw new Error(`Could not find the game ${gameId} in the Steam Database.`);
 
-  return isSuccess ? gameData.data.name : "Unknown";
+  if (gameData?.success) {
+    await supabase.from("steam_games").upsert([
+      {
+        name: gameData.data.name,
+        id: gameId,
+        updated_at: new Date().toISOString(),
+      },
+    ]);
+
+    return gameData.data.name;
+  }
+
+  return undefined;
 };
 
-export const getSteamGameNews = async (gameId: string) => {
+export const getSteamGameNews = async (gameId: number) => {
   const gameInfo = await axios.get<AppNews>(
     "http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002",
     {
@@ -68,17 +85,13 @@ export const getSteamGameNews = async (gameId: string) => {
     }
   );
 
-  const newsItems = gameInfo.data.appnews.newsitems;
-  if (!newsItems)
-    throw new Error(`Could not find the game ${gameId} in the Steam Database.`);
-
-  return newsItems[0];
+  return gameInfo.data.appnews.newsitems?.[0];
 };
 
 export const getSteamSubscriptions = async (guildId: string) => {
   const { data } = await supabase
     .from("steam_subscriptions")
-    .select()
+    .select("*, steam_games(name)")
     .match({
       server_id: guildId,
     })
@@ -94,13 +107,14 @@ export const getSteamSubscription = async ({
   gameId: number;
   channelId: string;
 }) => {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("steam_subscriptions")
-    .select("*")
+    .select("*, steam_games(*)")
     .eq("game_id", String(gameId))
     .eq("channel_id", channelId)
     .maybeSingle();
 
+  if (error) throw new Error(error.message);
   return data;
 };
 
@@ -123,7 +137,7 @@ export const createSteamSubscription = async ({
 }) => {
   const { error } = await supabase.from("steam_subscriptions").insert([
     {
-      game_id: String(gameId),
+      game_id: gameId,
       channel_id: channelId,
       server_id: guildId,
     },

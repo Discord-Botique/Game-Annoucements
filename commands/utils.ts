@@ -29,3 +29,10 @@ export const createSubscriptionCommand = ({ type }: { type: Type }) =>
             .setRequired(true)
         )
     );
+const isArray = (
+  value: { name: string } | { name: string }[]
+): value is { name: string }[] =>
+  Boolean(value && typeof value === "object" && value.constructor === Array);
+
+export const getName = (value: { name: string } | { name: string }[]) =>
+  isArray(value) ? value[0].name : value.name;

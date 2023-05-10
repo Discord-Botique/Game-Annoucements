@@ -2,6 +2,7 @@ import { Command } from "./command";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { getSteamGameName, getSteamSubscriptions } from "../utils/api";
 import { channelMention } from "discord.js";
+import { getName } from "./utils";
 
 export const list: Command = {
   data: new SlashCommandBuilder()
@@ -25,6 +26,10 @@ export const list: Command = {
 
     const updateMessage = async (index: number) => {
       const subscription = subscriptions[index];
+      const gameName =
+        subscription.steam_games !== null
+          ? getName(subscription.steam_games)
+          : await getSteamGameName(subscription.game_id);
 
       if (
         index === 0 ||
@@ -33,8 +38,7 @@ export const list: Command = {
         message += `\n${channelMention(subscription.channel_id)}\n`;
       }
 
-      const gameName = await getSteamGameName(subscription.game_id);
-      message += `• ${gameName} (ID: ${subscription.game_id})\n`;
+      message += `• ${gameName || "Unknown"} (ID: ${subscription.game_id})\n`;
 
       if (index < subscriptions.length - 1) await updateMessage(index + 1);
     };

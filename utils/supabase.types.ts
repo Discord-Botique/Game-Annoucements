@@ -9,12 +9,32 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      steam_games: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+      }
       steam_subscriptions: {
         Row: {
           channel_id: string
           created_at: string
           disabled_at: string | null
-          game_id: string
+          game_id: number
           id: number
           server_id: string
           updated_at: string
@@ -23,7 +43,7 @@ export interface Database {
           channel_id: string
           created_at?: string
           disabled_at?: string | null
-          game_id: string
+          game_id: number
           id?: number
           server_id: string
           updated_at?: string
@@ -32,7 +52,7 @@ export interface Database {
           channel_id?: string
           created_at?: string
           disabled_at?: string | null
-          game_id?: string
+          game_id?: number
           id?: number
           server_id?: string
           updated_at?: string

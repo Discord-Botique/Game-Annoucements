@@ -18,10 +18,22 @@ export const steam = async (
     });
 
   const idOrUrl = interaction.options.getString("id-or-url", true);
+  const gameId = getGameId(idOrUrl);
+
+  if (!gameId)
+    return interaction.reply({
+      content: `Could not parse the game ID from ${idOrUrl}.`,
+      ephemeral: true,
+    });
+
+  const gameName = await getSteamGameName(gameId);
+  if (!gameName)
+    return interaction.reply({
+      content: `Could not find a game with ID ${gameId} on Steam.`,
+      ephemeral: true,
+    });
 
   try {
-    const gameId = getGameId(idOrUrl);
-    const gameName = await getSteamGameName(gameId, true);
     const channelId = interaction.channelId;
 
     const subscription = await getSteamSubscription({
