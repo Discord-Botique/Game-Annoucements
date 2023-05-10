@@ -1,5 +1,6 @@
 import axios from "axios";
 import { supabase } from "./supabase";
+import { logtail } from "./logtailConfig";
 
 interface AppDetails {
   [key: string]:
@@ -47,45 +48,55 @@ export const getSteamGameName = async (
   if (data && new Date(data.updated_at).getTime() > Date.now() - 2592000000)
     return data.name;
 
-  const gameInfo = await axios.get<AppDetails>(
-    "https://store.steampowered.com/api/appdetails",
-    {
-      params: {
-        appids: gameId,
-      },
-    }
-  );
-
-  const gameData = gameInfo?.data[gameId];
-
-  if (gameData?.success) {
-    await supabase.from("steam_games").upsert([
+  try {
+    const gameInfo = await axios.get<AppDetails>(
+      "https://store.steampowered.com/api/appdetails",
       {
-        name: gameData.data.name,
-        id: gameId,
-        updated_at: new Date().toISOString(),
-      },
-    ]);
+        params: {
+          appids: gameId,
+        },
+      }
+    );
 
-    return gameData.data.name;
+    const gameData = gameInfo?.data[gameId];
+
+    if (gameData?.success) {
+      await supabase.from("steam_games").upsert([
+        {
+          name: gameData.data.name,
+          id: gameId,
+          updated_at: new Date().toISOString(),
+        },
+      ]);
+
+      return gameData.data.name;
+    }
+  } catch (e) {
+    await logtail.error("Error fetching game name", { error: String(e) });
+    return undefined;
   }
 
   return undefined;
 };
 
 export const getSteamGameNews = async (gameId: number) => {
-  const gameInfo = await axios.get<AppNews>(
-    "http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002",
-    {
-      params: {
-        appid: gameId,
-        maxlength: 500,
-        count: 1,
-      },
-    }
-  );
+  try {
+    const gameInfo = await axios.get<AppNews>(
+      "https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002",
+      {
+        params: {
+          appid: gameId,
+          maxlength: 500,
+          count: 1,
+        },
+      }
+    );
 
-  return gameInfo.data.appnews.newsitems?.[0];
+    return gameInfo.data.appnews.newsitems?.[0];
+  } catch (e) {
+    await logtail.error("Error fetching game news", { error: String(e) });
+    return undefined;
+  }
 };
 
 export const getSteamSubscriptions = async (guildId: string) => {
