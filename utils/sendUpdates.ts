@@ -34,7 +34,7 @@ const triggerMessages = async (client: Client<true>) => {
           const channel = await guild.channels
             .fetch(subscription.channel_id)
             .catch(async (err) => {
-              await logtail.error("Error fetching channel", {
+              await logtail.info("Error fetching channel", {
                 error: String(err),
               });
               return null;
