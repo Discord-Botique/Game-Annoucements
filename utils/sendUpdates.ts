@@ -87,6 +87,11 @@ const triggerMessages = async (client: Client<true>) => {
 
           const fetchedName = await fetchNameFromSteam(subscription.game_id);
           const name = fetchedName ?? gameData.name;
+          await logtail.debug("Sending announcement message", {
+            item: JSON.stringify(newsItem),
+          });
+
+          await channel.send(messageOptions(newsItem, name));
           await supabase.from("steam_games").upsert([
             {
               id: subscription.game_id,
@@ -95,13 +100,11 @@ const triggerMessages = async (client: Client<true>) => {
               updated_at: new Date().toISOString(),
             },
           ]);
-          await logtail.debug("Sending announcement message", {
-            item: JSON.stringify(newsItem),
-          });
-
-          await channel.send(messageOptions(newsItem, name));
         } catch (e) {
-          await logtail.error("Error sending message", { error: String(e) });
+          await logtail.error("Error sending message", {
+            error: String(e),
+            newsItem: JSON.stringify(fetchedNewsItems.at(-1)),
+          });
         }
       });
     })
