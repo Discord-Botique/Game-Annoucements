@@ -2,7 +2,7 @@ import { Command } from "./command";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { getSteamGameName, getSteamSubscriptions } from "../utils/api";
 import { channelMention } from "discord.js";
-import { getName } from "./utils";
+import { getGameData } from "../utils/utils";
 
 export const list: Command = {
   data: new SlashCommandBuilder()
@@ -28,7 +28,7 @@ export const list: Command = {
       const subscription = subscriptions[index];
       const gameName =
         subscription.steam_games !== null
-          ? getName(subscription.steam_games)
+          ? getGameData(subscription.steam_games).name
           : await getSteamGameName(subscription.game_id);
 
       if (

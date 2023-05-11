@@ -5,7 +5,7 @@ import {
   getSteamGameName,
   deleteSteamSubscription,
 } from "../../utils/api";
-import { getGameId } from "../../utils/utils";
+import { parseGameId } from "../../utils/utils";
 
 export const steam = async (
   interaction: ChatInputCommandInteraction
@@ -18,7 +18,7 @@ export const steam = async (
     });
 
   const idOrUrl = interaction.options.getString("id-or-url", true);
-  const gameId = getGameId(idOrUrl);
+  const gameId = parseGameId(idOrUrl);
 
   if (!gameId)
     return interaction.reply({

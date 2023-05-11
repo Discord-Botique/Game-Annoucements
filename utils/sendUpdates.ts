@@ -1,14 +1,46 @@
 import differenceInMilliseconds from "date-fns/differenceInMilliseconds";
-import differenceInHours from "date-fns/differenceInHours";
 import endOfHour from "date-fns/endOfHour";
-import { Client } from "discord.js";
+import { Client, MessageCreateOptions } from "discord.js";
 import { logtail } from "./logtailConfig";
 import {
-  getSteamGameName,
+  fetchNameFromSteam,
   getSteamGameNews,
   getSteamSubscriptions,
   NewsItem,
 } from "./api";
+import { getGameData } from "./utils";
+import { supabase } from "./supabase";
+
+const messageOptions = (
+  newsItem: NewsItem,
+  name: string
+): MessageCreateOptions => {
+  const content = newsItem.contents.replace(
+    "{STEAM_CLAN_IMAGE}",
+    "https://cdn.akamai.steamstatic.com/steamcommunity/public/images/clans"
+  );
+
+  const url = content.match(
+    /(http)?s?:?(\/\/[^"']*\.(?:png|jpg|jpeg|gif|svg))/gi
+  )?.[0];
+
+  return {
+    content: `A new ${newsItem.feedlabel} post for ${name} has been published!`,
+    embeds: [
+      {
+        title: newsItem.title,
+        url: newsItem.url,
+        description: url ? content.replace(url, "") : content,
+        image: url
+          ? {
+              url,
+            }
+          : undefined,
+        timestamp: new Date(newsItem.date * 1000).toISOString(),
+      },
+    ],
+  };
+};
 
 const triggerMessages = async (client: Client<true>) => {
   await logtail.debug("Checking for new announcements...");
@@ -45,43 +77,29 @@ const triggerMessages = async (client: Client<true>) => {
             subscription.game_id
           );
 
-          if (!newsItem) return null;
+          if (!newsItem || !subscription.steam_games) return null;
           if (pushNewsItem) fetchedNewsItems.push(newsItem);
 
-          const date = new Date(newsItem.date * 1000);
+          const gameData = getGameData(subscription.steam_games);
 
           // check if date is longer than an hour ago
-          if (differenceInHours(new Date(), date) > 1) return null;
+          if (newsItem.gid === gameData.last_announcement_id) return null;
 
+          const fetchedName = await fetchNameFromSteam(subscription.game_id);
+          const name = fetchedName ?? gameData.name;
+          await supabase.from("steam_games").upsert([
+            {
+              id: subscription.game_id,
+              name,
+              last_announcement_id: newsItem.gid,
+              updated_at: new Date().toISOString(),
+            },
+          ]);
           await logtail.debug("Sending announcement message", {
             item: JSON.stringify(newsItem),
-            difference: differenceInHours(new Date(), date),
           });
-          const gameName = await getSteamGameName(subscription.game_id);
 
-          const content = newsItem.contents.replace(
-            "{STEAM_CLAN_IMAGE}",
-            "https://cdn.akamai.steamstatic.com/steamcommunity/public/images/clans"
-          );
-
-          const url = content.match(/(https?:\/\/[^\s]+)/g)?.[0] ?? "";
-
-          await channel.send({
-            content: `A new ${newsItem.feedlabel} news item${
-              gameName ? ` for ${gameName}` : ""
-            } has been posted!`,
-            embeds: [
-              {
-                title: newsItem.title,
-                url: newsItem.url,
-                description: content.replace(url, ""),
-                image: {
-                  url,
-                },
-                timestamp: new Date(newsItem.date * 1000).toISOString(),
-              },
-            ],
-          });
+          await channel.send(messageOptions(newsItem, name));
         } catch (e) {
           await logtail.error("Error sending message", { error: String(e) });
         }

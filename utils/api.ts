@@ -36,49 +36,6 @@ export interface AppNews {
   };
 }
 
-export const getSteamGameName = async (
-  gameId: number
-): Promise<string | undefined> => {
-  const { data } = await supabase
-    .from("steam_games")
-    .select("name, updated_at")
-    .eq("id", gameId)
-    .maybeSingle();
-
-  if (data && new Date(data.updated_at).getTime() > Date.now() - 2592000000)
-    return data.name;
-
-  try {
-    const gameInfo = await axios.get<AppDetails>(
-      "https://store.steampowered.com/api/appdetails",
-      {
-        params: {
-          appids: gameId,
-        },
-      }
-    );
-
-    const gameData = gameInfo?.data[gameId];
-
-    if (gameData?.success) {
-      await supabase.from("steam_games").upsert([
-        {
-          name: gameData.data.name,
-          id: gameId,
-          updated_at: new Date().toISOString(),
-        },
-      ]);
-
-      return gameData.data.name;
-    }
-  } catch (e) {
-    await logtail.error("Error fetching game name", { error: String(e) });
-    return undefined;
-  }
-
-  return undefined;
-};
-
 export const getSteamGameNews = async (gameId: number) => {
   try {
     const gameInfo = await axios.get<AppNews>(
@@ -99,10 +56,58 @@ export const getSteamGameNews = async (gameId: number) => {
   }
 };
 
+export const fetchNameFromSteam = async (
+  gameId: number
+): Promise<string | undefined> => {
+  try {
+    const gameInfo = await axios.get<AppDetails>(
+      "https://store.steampowered.com/api/appdetails",
+      {
+        params: {
+          appids: gameId,
+        },
+      }
+    );
+
+    const gameData = gameInfo?.data[gameId];
+    const latestNews = await getSteamGameNews(gameId);
+    console.log(latestNews);
+    console.log("adding game");
+
+    if (gameData?.success) {
+      await supabase.from("steam_games").upsert([
+        {
+          name: gameData.data.name,
+          id: gameId,
+          updated_at: new Date().toISOString(),
+          last_announcement_id: latestNews?.gid,
+        },
+      ]);
+
+      return gameData.data.name;
+    }
+  } catch (e) {
+    await logtail.error("Error fetching game name", { error: String(e) });
+    return undefined;
+  }
+};
+
+export const getSteamGameName = async (
+  gameId: number
+): Promise<string | undefined> => {
+  const { data } = await supabase
+    .from("steam_games")
+    .select("name, updated_at")
+    .eq("id", gameId)
+    .maybeSingle();
+
+  return data?.name ?? (await fetchNameFromSteam(gameId));
+};
+
 export const getSteamSubscriptions = async (guildId: string) => {
   const { data } = await supabase
     .from("steam_subscriptions")
-    .select("*, steam_games(name)")
+    .select("*, steam_games(name, last_announcement_id)")
     .match({
       server_id: guildId,
     })
