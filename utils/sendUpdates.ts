@@ -2,12 +2,7 @@ import differenceInMilliseconds from "date-fns/differenceInMilliseconds";
 import endOfHour from "date-fns/endOfHour";
 import { Client, MessageCreateOptions } from "discord.js";
 import { logtail } from "./logtailConfig";
-import {
-  fetchNameFromSteam,
-  getSteamGameNews,
-  getSteamSubscriptions,
-  NewsItem,
-} from "./api";
+import { getSteamGameNews, getSteamSubscriptions, NewsItem } from "./api";
 import { getGameData } from "./utils";
 import { supabase } from "./supabase";
 
@@ -85,25 +80,27 @@ const triggerMessages = async (client: Client<true>) => {
           // check if date is longer than an hour ago
           if (newsItem.gid === gameData.last_announcement_id) return null;
 
-          const fetchedName = await fetchNameFromSteam(subscription.game_id);
-          const name = fetchedName ?? gameData.name;
           await logtail.debug("Sending announcement message", {
             item: JSON.stringify(newsItem),
           });
 
-          await channel.send(messageOptions(newsItem, name));
+          await channel.send(messageOptions(newsItem, gameData.name));
           await supabase.from("steam_games").upsert([
             {
               id: subscription.game_id,
-              name,
+              name: gameData.name,
               last_announcement_id: newsItem.gid,
               updated_at: new Date().toISOString(),
             },
           ]);
         } catch (e) {
+          const newsItem = fetchedNewsItems.at(-1);
           await logtail.error("Error sending message", {
             error: String(e),
-            newsItem: JSON.stringify(fetchedNewsItems.at(-1)),
+            newsItem: JSON.stringify(newsItem),
+            messageOptions: newsItem
+              ? JSON.stringify(messageOptions(newsItem, "Placeholder"))
+              : null,
           });
         }
       });

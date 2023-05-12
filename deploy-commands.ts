@@ -22,8 +22,7 @@ rest
   })
   .then(() => logtail.debug("Successfully registered application commands."))
   .catch((err) =>
-    logtail.error(
-      "Error registering application commands.",
-      JSON.parse(JSON.stringify(err))
-    )
+    logtail.error("Error registering application commands.", {
+      error: JSON.stringify(err),
+    })
   );

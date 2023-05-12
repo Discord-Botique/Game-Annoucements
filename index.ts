@@ -37,12 +37,9 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 (() => {
-  client
-    .login(process.env.TOKEN)
-    .catch((err) =>
-      logtail.error(
-        "Could not login to Discord.",
-        JSON.parse(JSON.stringify(err))
-      )
-    );
+  client.login(process.env.TOKEN).catch((err) =>
+    logtail.error("Could not login to Discord.", {
+      error: JSON.stringify(err),
+    })
+  );
 })();

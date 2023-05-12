@@ -71,8 +71,6 @@ export const fetchNameFromSteam = async (
 
     const gameData = gameInfo?.data[gameId];
     const latestNews = await getSteamGameNews(gameId);
-    console.log(latestNews);
-    console.log("adding game");
 
     if (gameData?.success) {
       await supabase.from("steam_games").upsert([
