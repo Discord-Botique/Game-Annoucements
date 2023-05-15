@@ -51,7 +51,9 @@ export const getSteamGameNews = async (gameId: number) => {
 
     return gameInfo.data.appnews.newsitems?.[0];
   } catch (e) {
-    await logtail.error("Error fetching game news", { error: String(e) });
+    await logtail.error(`Error fetching game news for ID ${gameId}`, {
+      error: String(e),
+    });
     return undefined;
   }
 };
@@ -85,7 +87,9 @@ export const fetchNameFromSteam = async (
       return gameData.data.name;
     }
   } catch (e) {
-    await logtail.error("Error fetching game name", { error: String(e) });
+    await logtail.error(`Error fetching game name for ID ${gameId}`, {
+      error: String(e),
+    });
     return undefined;
   }
 };
