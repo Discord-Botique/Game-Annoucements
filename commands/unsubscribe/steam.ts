@@ -1,4 +1,8 @@
-import { channelMention, ChatInputCommandInteraction } from "discord.js";
+import {
+  channelMention,
+  ChatInputCommandInteraction,
+  roleMention,
+} from "discord.js";
 import { logtail } from "../../utils/logtailConfig";
 import {
   getSteamSubscription,
@@ -49,9 +53,11 @@ export const steam = async (
 
     await deleteSteamSubscription(subscription.id);
     await interaction.reply(
-      `Unsubscribed to ${gameName}! ${channelMention(
+      `Unsubscribed to ${gameName}! ${
+        subscription.role_id ? roleMention(subscription.role_id) : "Users"
+      } will no longer receive announcements for this game in the ${channelMention(
         interaction.channelId
-      )} will no longer receive announcements for this game.`
+      )} channel.`
     );
   } catch (error) {
     await logtail.error(String(error), {

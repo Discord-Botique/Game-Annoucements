@@ -1,4 +1,8 @@
-import { channelMention, ChatInputCommandInteraction } from "discord.js";
+import {
+  channelMention,
+  ChatInputCommandInteraction,
+  roleMention,
+} from "discord.js";
 import { logtail } from "../../utils/logtailConfig";
 import {
   getSteamSubscription,
@@ -18,6 +22,8 @@ export const steam = async (
     });
 
   const idOrUrl = interaction.options.getString("id-or-url", true);
+  const role = interaction.options.getRole("role-mention");
+
   const gameId = parseGameId(idOrUrl);
 
   if (!gameId)
@@ -52,13 +58,16 @@ export const steam = async (
         gameId,
         guildId,
         channelId,
+        roleId: role?.id,
       });
     }
 
     await interaction.reply(
-      `Subscribed to ${gameName}! ${channelMention(
+      `Subscribed to ${gameName}! ${
+        role ? roleMention(role.id) : "Users"
+      } will now receive announcements for this game in the ${channelMention(
         interaction.channelId
-      )} will now receive announcements for this game.`
+      )} channel.`
     );
   } catch (error) {
     await logtail.error(String(error), {

@@ -1,7 +1,7 @@
 import { Command } from "./command";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { getSteamGameName, getSteamSubscriptions } from "../utils/api";
-import { channelMention } from "discord.js";
+import { channelMention, roleMention } from "discord.js";
 import { getGameData } from "../utils/utils";
 
 export const list: Command = {
@@ -38,7 +38,9 @@ export const list: Command = {
         message += `\n${channelMention(subscription.channel_id)}\n`;
       }
 
-      message += `• ${gameName || "Unknown"} (ID: ${subscription.game_id})\n`;
+      message += `• ${gameName || "Unknown"} (ID: ${subscription.game_id})${
+        subscription.role_id ? ` - ${roleMention(subscription.role_id)}` : ""
+      }\n`;
 
       if (index < subscriptions.length - 1) await updateMessage(index + 1);
     };

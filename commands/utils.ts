@@ -10,7 +10,13 @@ export enum Type {
   UNSUBSCRIBE = "Unsubscribe",
 }
 
-export const createSubscriptionCommand = ({ type }: { type: Type }) =>
+export const createSubscriptionCommand = ({
+  type,
+  addRoleMention,
+}: {
+  type: Type;
+  addRoleMention?: boolean;
+}) =>
   new SlashCommandBuilder()
     .setName(type.toLowerCase())
     .setDescription(
@@ -18,8 +24,8 @@ export const createSubscriptionCommand = ({ type }: { type: Type }) =>
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
     .setDMPermission(false)
-    .addSubcommand((subcommand) =>
-      subcommand
+    .addSubcommand((subcommand) => {
+      const finalSubcommand = subcommand
         .setName(SubCommand.STEAM)
         .setDescription(`${type} to a game's announcements on steam`)
         .addStringOption((option) =>
@@ -27,5 +33,16 @@ export const createSubscriptionCommand = ({ type }: { type: Type }) =>
             .setName("id-or-url")
             .setDescription("The game's ID or URL on Steam")
             .setRequired(true)
-        )
-    );
+        );
+
+      if (addRoleMention) {
+        subcommand.addRoleOption((option) =>
+          option
+            .setName("role-mention")
+            .setDescription("The role to ping when a new announcement is made")
+            .setRequired(false)
+        );
+      }
+
+      return finalSubcommand;
+    });

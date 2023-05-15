@@ -11,7 +11,10 @@ const subCommands: Record<
 };
 
 export const subscribe: Command = {
-  data: createSubscriptionCommand({ type: Type.SUBSCRIBE }),
+  data: createSubscriptionCommand({
+    type: Type.SUBSCRIBE,
+    addRoleMention: true,
+  }),
   async execute(interaction) {
     if (!interaction.isChatInputCommand()) return;
 

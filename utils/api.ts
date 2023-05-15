@@ -144,16 +144,19 @@ export const createSteamSubscription = async ({
   gameId,
   guildId,
   channelId,
+  roleId,
 }: {
   gameId: number;
   channelId: string;
   guildId: string;
+  roleId?: string;
 }) => {
   const { error } = await supabase.from("steam_subscriptions").insert([
     {
       game_id: gameId,
       channel_id: channelId,
       server_id: guildId,
+      role_id: roleId,
     },
   ]);
 

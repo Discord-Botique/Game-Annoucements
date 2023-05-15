@@ -1,6 +1,6 @@
 import differenceInMilliseconds from "date-fns/differenceInMilliseconds";
 import endOfHour from "date-fns/endOfHour";
-import { Client, MessageCreateOptions } from "discord.js";
+import { Client, MessageCreateOptions, roleMention } from "discord.js";
 import { logtail } from "./logtailConfig";
 import { getSteamGameNews, getSteamSubscriptions, NewsItem } from "./api";
 import { getGameData } from "./utils";
@@ -8,7 +8,8 @@ import { supabase } from "./supabase";
 
 const messageOptions = (
   newsItem: NewsItem,
-  name: string
+  name: string,
+  roleId: string | null
 ): MessageCreateOptions => {
   const content = newsItem.contents.replace(
     "{STEAM_CLAN_IMAGE}",
@@ -20,7 +21,9 @@ const messageOptions = (
   )?.[0];
 
   return {
-    content: `A new ${newsItem.feedlabel} post for ${name} has been published!`,
+    content: `${roleId ? `${roleMention(roleId)} ` : ""}A new ${
+      newsItem.feedlabel
+    } post for ${name} has been published!`,
     embeds: [
       {
         title: newsItem.title,
@@ -84,7 +87,14 @@ const triggerMessages = async (client: Client<true>) => {
             item: JSON.stringify(newsItem),
           });
 
-          await channel.send(messageOptions(newsItem, gameData.name));
+          const message = messageOptions(
+            newsItem,
+            gameData.name,
+            subscription.role_id
+          );
+          await channel.send(message).catch(() => {
+            throw new Error(JSON.stringify(message));
+          });
           await supabase.from("steam_games").upsert([
             {
               id: subscription.game_id,
@@ -94,13 +104,9 @@ const triggerMessages = async (client: Client<true>) => {
             },
           ]);
         } catch (e) {
-          const newsItem = fetchedNewsItems.at(-1);
           await logtail.error("Error sending message", {
             error: String(e),
-            newsItem: JSON.stringify(newsItem),
-            messageOptions: newsItem
-              ? JSON.stringify(messageOptions(newsItem, "Placeholder"))
-              : null,
+            newsItem: JSON.stringify(fetchedNewsItems.at(-1)),
           });
         }
       });
