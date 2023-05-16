@@ -77,10 +77,11 @@ const triggerMessages = async (client: Client<true>) => {
 
           if (!newsItem || !subscription.steam_games) return null;
           if (pushNewsItem) fetchedNewsItems.push(newsItem);
+          if (newsItem.feedlabel === "Gamemag.ru") return null;
 
           const gameData = getGameData(subscription.steam_games);
 
-          // check if date is longer than an hour ago
+          // check if the news item is the same as the last one we sent
           if (newsItem.gid === gameData.last_announcement_id) return null;
 
           await logtail.debug("Sending announcement message", {
