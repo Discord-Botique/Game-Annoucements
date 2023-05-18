@@ -1,6 +1,7 @@
 import {
   channelMention,
   ChatInputCommandInteraction,
+  PermissionFlagsBits,
   roleMention,
 } from "discord.js";
 import { logtail } from "../../utils/logtailConfig";
@@ -42,6 +43,21 @@ export const steam = async (
   try {
     const channelId = interaction.channelId;
 
+    const guild = await interaction.guild?.fetch();
+    const channel = await guild?.channels
+      .fetch(channelId, {
+        force: true,
+        cache: false,
+      })
+      .catch(() => undefined);
+
+    if (!channel)
+      return interaction.reply({
+        content:
+          "Sorry! This bot does not have access to this channel. Please provide access and try again.",
+        ephemeral: true,
+      });
+
     const subscription = await getSteamSubscription({
       gameId,
       channelId,
@@ -49,9 +65,7 @@ export const steam = async (
 
     if (subscription) {
       return await interaction.reply(
-        `${channelMention(
-          interaction.channelId
-        )} is already subscribed to ${gameName}.`
+        `${channelMention(channelId)} is already subscribed to ${gameName}.`
       );
     } else {
       await createSteamSubscription({
