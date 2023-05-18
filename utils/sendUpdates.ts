@@ -17,7 +17,7 @@ const messageOptions = (
   );
 
   const url = content.match(
-    /(http)?s?:?(\/\/[^"']*\.(?:png|jpg|jpeg|gif|svg))/gi
+    /(http)?s?:?(\/\/[^"']*?\.(?:png|jpg|jpeg|gif|svg))/gi
   )?.[0];
 
   return {
@@ -66,6 +66,8 @@ const triggerMessages = async (client: Client<true>) => {
             .catch(async (err) => {
               await logtail.info("Error fetching channel", {
                 error: String(err),
+                guildId: subscription.server_id,
+                channelId: subscription.channel_id,
               });
               return null;
             });
@@ -107,7 +109,6 @@ const triggerMessages = async (client: Client<true>) => {
         } catch (e) {
           await logtail.error("Error sending message", {
             error: String(e),
-            newsItem: JSON.stringify(fetchedNewsItems.at(-1)),
           });
         }
       });
