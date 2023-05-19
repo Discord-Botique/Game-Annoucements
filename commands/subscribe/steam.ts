@@ -1,7 +1,6 @@
 import {
   channelMention,
   ChatInputCommandInteraction,
-  PermissionFlagsBits,
   roleMention,
 } from "discord.js";
 import { logtail } from "../../utils/logtailConfig";

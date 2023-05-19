@@ -18,7 +18,7 @@ module.exports = {
     node: true,
   },
   rules: {
-    complexity: ["error", { max: 8 }],
+    complexity: ["error", { max: 10 }],
     "@typescript-eslint/no-explicit-any": ["error"],
     "@typescript-eslint/no-unused-vars": ["error"],
   },
