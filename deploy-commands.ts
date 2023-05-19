@@ -6,9 +6,12 @@ import { subscribe } from "./commands/subscribe";
 import { unsubscribe } from "./commands/unsubscribe";
 import { list } from "./commands/list";
 import { help } from "./commands/help";
+import axios from "axios";
 
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
 const commands: Command[] = [subscribe, unsubscribe, list, help];
+
+const commandsJSON = commands.map((command) => command.data.toJSON());
 
 const commandsRoute = process.env.TEST_SERVER_ID
   ? Routes.applicationGuildCommands(
@@ -17,9 +20,19 @@ const commandsRoute = process.env.TEST_SERVER_ID
     )
   : Routes.applicationCommands(process.env.CLIENT_ID);
 
+(async () =>
+  axios.post(
+    `https://discordbotlist.com/api/v1/bots/${process.env.CLIENT_ID}/commands`,
+    commandsJSON
+  ))().catch((err) =>
+  logtail.error("Error updating commands in DiscordBotList", {
+    error: JSON.stringify(err),
+  })
+);
+
 rest
   .put(commandsRoute, {
-    body: commands.map((command) => command.data.toJSON()),
+    body: commandsJSON,
   })
   .then(() => logtail.debug("Successfully registered application commands."))
   .catch((err) =>
