@@ -7,5 +7,6 @@ declare namespace NodeJS {
     SUPABASE_URL: string;
     SUPABASE_DB: string;
     TEST_SERVER_ID?: string;
+    DBL_TOKEN: string;
   }
 }

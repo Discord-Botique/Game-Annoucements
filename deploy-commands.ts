@@ -23,7 +23,12 @@ const commandsRoute = process.env.TEST_SERVER_ID
 (async () =>
   axios.post(
     `https://discordbotlist.com/api/v1/bots/${process.env.CLIENT_ID}/commands`,
-    commandsJSON
+    commandsJSON,
+    {
+      headers: {
+        Authorization: process.env.DBL_TOKEN,
+      },
+    }
   ))().catch((err) =>
   logtail.error("Error updating commands in DiscordBotList", {
     error: JSON.stringify(err),
