@@ -9,6 +9,7 @@ import {
   getSteamSubscription,
   getSteamGameName,
   createSteamSubscription,
+  countSubscriptions,
 } from "../../utils/api";
 import { parseGameId } from "../../utils/utils";
 
@@ -19,6 +20,14 @@ export const steam = async (
   if (!guildId)
     return interaction.reply({
       content: "This is not a server.",
+      ephemeral: true,
+    });
+
+  const count = await countSubscriptions(guildId);
+
+  if (count > 5)
+    return interaction.reply({
+      content: "Servers are currently limited to 5 subscriptions at a time.",
       ephemeral: true,
     });
 

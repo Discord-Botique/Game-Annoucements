@@ -17,7 +17,7 @@ export const list: Command = {
 
     const subscriptions = await getSteamSubscriptions(interaction.guildId);
 
-    if (!subscriptions)
+    if (!subscriptions || subscriptions.length === 0)
       return interaction.reply(
         "There are no subscriptions for this server! Channel managers can create some with the `/subscribe` application command."
       );

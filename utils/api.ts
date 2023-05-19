@@ -58,6 +58,15 @@ export const getSteamGameNews = async (gameId: number) => {
   }
 };
 
+export const countSubscriptions = async (serverId: string) => {
+  const count = await supabase
+    .from("steam_subscriptions")
+    .select("*", { count: "exact", head: true })
+    .eq("server_id", serverId);
+
+  return count.count ?? 0;
+};
+
 export const fetchNameFromSteam = async (
   gameId: number
 ): Promise<string | undefined> => {
