@@ -5,9 +5,10 @@ import { Command } from "./commands/command";
 import { subscribe } from "./commands/subscribe";
 import { unsubscribe } from "./commands/unsubscribe";
 import { list } from "./commands/list";
+import { help } from "./commands/help";
 
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
-const commands: Command[] = [subscribe, unsubscribe, list];
+const commands: Command[] = [subscribe, unsubscribe, list, help];
 
 const commandsRoute = process.env.TEST_SERVER_ID
   ? Routes.applicationGuildCommands(

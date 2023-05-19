@@ -7,6 +7,7 @@ import { Command } from "./commands/command";
 import { subscribe } from "./commands/subscribe";
 import { unsubscribe } from "./commands/unsubscribe";
 import { list } from "./commands/list";
+import { help } from "./commands/help";
 
 config();
 
@@ -25,7 +26,7 @@ events.forEach((event) => {
   else client.on(event.name, (...args) => event.execute(...args));
 });
 
-const commands: Command[] = [subscribe, unsubscribe, list];
+const commands: Command[] = [subscribe, unsubscribe, list, help];
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isContextMenuCommand() && !interaction.isChatInputCommand())
