@@ -21,9 +21,9 @@ const messageOptions = (
   )?.[0];
 
   return {
-    content: `${roleId ? `${roleMention(roleId)} ` : ""}A new ${
-      newsItem.feedlabel
-    } post for ${name} has been published!`,
+    content: `${
+      roleId ? `${roleMention(roleId)} ` : ""
+    }A new community announcement for ${name} has been published!`,
     embeds: [
       {
         title: newsItem.title,
@@ -79,7 +79,7 @@ const triggerMessages = async (client: Client<true>) => {
 
           if (!newsItem || !subscription.steam_games) return null;
           if (pushNewsItem) fetchedNewsItems.push(newsItem);
-          if (newsItem.feedlabel === "Gamemag.ru") return null;
+          if (newsItem.feedlabel !== "Community Announcements") return null;
 
           const gameData = getGameData(subscription.steam_games);
 
