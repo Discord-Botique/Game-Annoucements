@@ -8,26 +8,20 @@ import { Database } from "../../utils/supabase.types";
 import addHours from "date-fns/addHours";
 import getMonth from "date-fns/getMonth";
 import getDate from "date-fns/getDate";
-import { getBirthdaySubscriptions } from "./api";
+import { getActiveUsersSubscriptions } from "./api";
 
 type User = Database["public"]["Tables"]["birthdays"]["Row"];
 
 const getUsersWithAnniversaries = async (guild: Guild): Promise<User[]> => {
-  const subscriptions = await getBirthdaySubscriptions(guild.id);
-  if (!subscriptions || subscriptions.length === 0) return [];
-  const users = await guild.members.fetch({
-    user: subscriptions.map(({ user_id }) => user_id),
-  });
-  const filteredSubscriptions = subscriptions?.filter((subscription) =>
-    users.has(subscription.user_id)
-  );
+  const subscriptions = await getActiveUsersSubscriptions(guild);
 
   const currentMonth = getMonth(new Date());
   const currentDate = getDate(new Date());
 
-  return filteredSubscriptions.filter((user) => {
-    const joinMonth = getMonth(new Date(user.birthday));
-    const joinDate = getDate(new Date(user.birthday));
+  return subscriptions.filter((user) => {
+    const birthday = new Date(user.birthday);
+    const joinMonth = getMonth(birthday);
+    const joinDate = getDate(birthday);
     return joinMonth === currentMonth && joinDate === currentDate;
   });
 };
@@ -79,7 +73,7 @@ const checkBirthdays = async (client: Client<true>) => {
       console.error(err);
       await logtail.error("There was an error sending anniversary messages");
     });
-  }, timeUntilNextDay);
+  }, 1000);
 };
 
 export default checkBirthdays;

@@ -1,4 +1,6 @@
 import { supabase } from "../../utils/supabase";
+import { Guild } from "discord.js";
+import { Database } from "../../utils/supabase.types";
 
 export const getBirthdaySubscriptions = async (guildId: string) => {
   const { data } = await supabase
@@ -10,6 +12,25 @@ export const getBirthdaySubscriptions = async (guildId: string) => {
     .order("channel_id", { ascending: true });
 
   return data;
+};
+
+type User = Database["public"]["Tables"]["birthdays"]["Row"];
+
+// This method get subscriptions only for users that are still in the server
+export const getActiveUsersSubscriptions = async (
+  guild: Guild
+): Promise<User[]> => {
+  const subscriptions = await getBirthdaySubscriptions(guild.id);
+
+  if (!subscriptions || subscriptions.length === 0) return [];
+
+  const users = await guild.members.fetch({
+    user: subscriptions.map(({ user_id }) => user_id),
+  });
+
+  return subscriptions.filter((subscription) =>
+    users.has(subscription.user_id)
+  );
 };
 
 export const getBirthdaySubscription = async ({
