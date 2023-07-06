@@ -3,12 +3,12 @@ import differenceInMilliseconds from "date-fns/differenceInMilliseconds";
 import differenceInYears from "date-fns/differenceInYears";
 import startOfTomorrow from "date-fns/startOfTomorrow";
 import { userMention } from "@discordjs/builders";
-import { logtail } from "./logtailConfig";
-import { getBirthdaySubscriptions } from "./api";
-import { Database } from "./supabase.types";
+import { logtail } from "../../utils/logtailConfig";
+import { Database } from "../../utils/supabase.types";
 import addHours from "date-fns/addHours";
 import getMonth from "date-fns/getMonth";
 import getDate from "date-fns/getDate";
+import { getBirthdaySubscriptions } from "./api";
 
 type User = Database["public"]["Tables"]["birthdays"]["Row"];
 

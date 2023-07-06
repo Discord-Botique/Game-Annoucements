@@ -4,10 +4,8 @@ import {
   userMention,
 } from "discord.js";
 import { logtail } from "../../utils/logtailConfig";
-import {
-  getBirthdaySubscription,
-  createBirthdaySubscription,
-} from "../../utils/api";
+
+import { createBirthdaySubscription, getBirthdaySubscription } from "./api";
 
 export const subscribe = async (
   interaction: ChatInputCommandInteraction

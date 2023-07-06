@@ -1,10 +1,10 @@
 import differenceInMilliseconds from "date-fns/differenceInMilliseconds";
 import endOfHour from "date-fns/endOfHour";
 import { Client, MessageCreateOptions, roleMention } from "discord.js";
-import { logtail } from "./logtailConfig";
+import { logtail } from "../../utils/logtailConfig";
 import { getSteamGameNews, getSteamSubscriptions, NewsItem } from "./api";
 import { getGameData } from "./utils";
-import { supabase } from "./supabase";
+import { supabase } from "../../utils/supabase";
 
 const messageOptions = (
   newsItem: NewsItem,

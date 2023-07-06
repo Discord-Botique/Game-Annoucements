@@ -8,8 +8,8 @@ import {
   getSteamSubscription,
   getSteamGameName,
   createSteamSubscription,
-} from "../../utils/api";
-import { parseGameId } from "../../utils/utils";
+} from "./api";
+import { parseGameId } from "./utils";
 
 export const subscribe = async (
   interaction: ChatInputCommandInteraction

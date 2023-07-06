@@ -1,9 +1,9 @@
-import { getBirthdaySubscriptions } from "../../utils/api";
 import {
   channelMention,
   ChatInputCommandInteraction,
   userMention,
 } from "discord.js";
+import { getBirthdaySubscriptions } from "./api";
 
 export const list = async (
   interaction: ChatInputCommandInteraction

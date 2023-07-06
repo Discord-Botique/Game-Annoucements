@@ -1,8 +1,8 @@
 import type { Event } from "./event";
 import { ActivityType } from "discord-api-types/v10";
 import { logtail } from "../utils/logtailConfig";
-import { sendUpdates } from "../utils/sendUpdates";
-import checkBirthdays from "../utils/checkBirthdays";
+import { sendUpdates } from "../commands/steam/sendUpdates";
+import checkBirthdays from "../commands/birthday/checkBirthdays";
 
 export const ready: Event<"ready"> = {
   name: "ready",
@@ -15,7 +15,7 @@ export const ready: Event<"ready"> = {
       activities: [
         {
           type: ActivityType.Streaming,
-          name: "v1.3.1",
+          name: "v1.3.2",
         },
       ],
     });

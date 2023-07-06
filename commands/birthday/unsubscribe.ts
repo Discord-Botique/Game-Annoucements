@@ -1,9 +1,7 @@
 import { ChatInputCommandInteraction, userMention } from "discord.js";
 import { logtail } from "../../utils/logtailConfig";
-import {
-  deleteBirthdaySubscription,
-  getBirthdaySubscription,
-} from "../../utils/api";
+
+import { deleteBirthdaySubscription, getBirthdaySubscription } from "./api";
 
 export const unsubscribe = async (
   interaction: ChatInputCommandInteraction

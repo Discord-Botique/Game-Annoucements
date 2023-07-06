@@ -8,8 +8,8 @@ import {
   getSteamSubscription,
   getSteamGameName,
   deleteSteamSubscription,
-} from "../../utils/api";
-import { parseGameId } from "../../utils/utils";
+} from "./api";
+import { parseGameId } from "./utils";
 
 export const unsubscribe = async (
   interaction: ChatInputCommandInteraction

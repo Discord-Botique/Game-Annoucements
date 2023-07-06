@@ -1,6 +1,6 @@
 import axios from "axios";
-import { supabase } from "./supabase";
-import { logtail } from "./logtailConfig";
+import { supabase } from "../../utils/supabase";
+import { logtail } from "../../utils/logtailConfig";
 
 interface AppDetails {
   [key: string]:
@@ -118,36 +118,6 @@ export const getSteamSubscriptions = async (guildId: string) => {
   return data;
 };
 
-export const getBirthdaySubscriptions = async (guildId: string) => {
-  const { data } = await supabase
-    .from("birthdays")
-    .select("*")
-    .match({
-      server_id: guildId,
-    })
-    .order("channel_id", { ascending: true });
-
-  return data;
-};
-
-export const getBirthdaySubscription = async ({
-  userId,
-  channelId,
-}: {
-  userId: string;
-  channelId: string;
-}) => {
-  const { data, error } = await supabase
-    .from("birthdays")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("channel_id", channelId)
-    .maybeSingle();
-
-  if (error) throw new Error(error.message);
-  return data;
-};
-
 export const getSteamSubscription = async ({
   gameId,
   channelId,
@@ -174,11 +144,6 @@ export const deleteSteamSubscription = async (id: number) => {
   if (error) throw new Error(error.message);
 };
 
-export const deleteBirthdaySubscription = async (id: number) => {
-  const { error } = await supabase.from("birthdays").delete().match({ id });
-  if (error) throw new Error(error.message);
-};
-
 export const createSteamSubscription = async ({
   gameId,
   guildId,
@@ -196,32 +161,6 @@ export const createSteamSubscription = async ({
       channel_id: channelId,
       server_id: guildId,
       role_id: roleId,
-    },
-  ]);
-
-  if (error) throw new Error(error.message);
-};
-
-export const createBirthdaySubscription = async ({
-  birthday,
-  guildId,
-  channelId,
-  userId,
-  hasYear,
-}: {
-  birthday: string;
-  channelId: string;
-  guildId: string;
-  userId: string;
-  hasYear: boolean;
-}) => {
-  const { error } = await supabase.from("birthdays").insert([
-    {
-      user_id: userId,
-      channel_id: channelId,
-      server_id: guildId,
-      birthday,
-      has_year: hasYear,
     },
   ]);
 
