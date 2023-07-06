@@ -63,9 +63,12 @@ export const subscribe = async (
     });
 
     if (subscription) {
-      return await interaction.reply(
-        `${channelMention(channelId)} is already subscribed to ${gameName}.`
-      );
+      return await interaction.reply({
+        content: `${channelMention(
+          channelId
+        )} is already subscribed to ${gameName}.`,
+        ephemeral: true,
+      });
     } else {
       await createSteamSubscription({
         gameId,

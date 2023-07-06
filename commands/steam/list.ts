@@ -15,10 +15,10 @@ export const list = async (
 
   if (!subscriptions || subscriptions.length === 0)
     return interaction.reply(
-      "There are no subscriptions for this server! Channel managers can create some with the `/subscribe` application command."
+      "There are no subscriptions for this server! Create some with the `/steam subscribe` application command."
     );
 
-  let message = "Here are the games this server is currently subscribed to:";
+  let message = "Here are the games this server is currently subscribed to:\n";
 
   const updateMessage = async (index: number) => {
     const subscription = subscriptions[index];

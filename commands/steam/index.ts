@@ -2,19 +2,10 @@ import { Command } from "../command";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { subscribe } from "./subscribe";
 import { unsubscribe } from "./unsubscribe";
-import { ChatInputCommandInteraction } from "discord.js";
 import { list } from "./list";
+import { ActionInterface, SubCommand } from "../utils";
 
-export enum SubCommand {
-  SUBSCRIBE = "subscribe",
-  UNSUBSCRIBE = "unsubscribe",
-  LIST = "list",
-}
-
-const actions: Record<
-  SubCommand,
-  (interaction: ChatInputCommandInteraction) => Promise<unknown>
-> = {
+const actions: ActionInterface = {
   subscribe,
   unsubscribe,
   list,

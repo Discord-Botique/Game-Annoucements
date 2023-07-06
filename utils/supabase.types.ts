@@ -3,12 +3,39 @@ export type Json =
   | number
   | boolean
   | null
-  | { [key: string]: Json }
+  | { [key: string]: Json | undefined }
   | Json[];
 
 export interface Database {
   public: {
     Tables: {
+      birthdays: {
+        Row: {
+          birthday: string;
+          channel_id: string;
+          created_at: string;
+          id: number;
+          server_id: string;
+          user_id: string;
+        };
+        Insert: {
+          birthday: string;
+          channel_id: string;
+          created_at?: string;
+          id?: number;
+          server_id: string;
+          user_id: string;
+        };
+        Update: {
+          birthday?: string;
+          channel_id?: string;
+          created_at?: string;
+          id?: number;
+          server_id?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       steam_games: {
         Row: {
           created_at: string;
@@ -31,6 +58,7 @@ export interface Database {
           name?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       steam_subscriptions: {
         Row: {
@@ -63,6 +91,14 @@ export interface Database {
           server_id?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "steam_subscriptions_game_id_fkey";
+            columns: ["game_id"];
+            referencedRelation: "steam_games";
+            referencedColumns: ["id"];
+          }
+        ];
       };
     };
     Views: {
