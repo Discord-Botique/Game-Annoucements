@@ -73,7 +73,7 @@ const checkBirthdays = async (client: Client<true>) => {
       console.error(err);
       await logtail.error("There was an error sending anniversary messages");
     });
-  }, 1000);
+  }, timeUntilNextDay);
 };
 
 export default checkBirthdays;
