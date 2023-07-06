@@ -13,7 +13,7 @@ export const list = async (
   const noSubscriptionsMessage = () =>
     interaction.reply({
       content:
-        "There are no birthday announcements for this server! Channel managers can create some with the `/birthday subscribe` application command.",
+        "There are no birthday announcements for this server! You can add yours with the `/birthday subscribe` application command.",
       ephemeral: true,
     });
 
