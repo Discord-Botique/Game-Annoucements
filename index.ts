@@ -4,9 +4,7 @@ import { Client, ClientEvents } from "discord.js";
 import type { Event } from "./events/event";
 import { logtail } from "./utils/logtailConfig";
 import { Command } from "./commands/command";
-import { subscribe } from "./commands/subscribe";
-import { unsubscribe } from "./commands/unsubscribe";
-import { list } from "./commands/list";
+import { steam } from "./commands/steam";
 import { help } from "./commands/help";
 
 config();
@@ -26,7 +24,7 @@ events.forEach((event) => {
   else client.on(event.name, (...args) => event.execute(...args));
 });
 
-const commands: Command[] = [subscribe, unsubscribe, list, help];
+const commands: Command[] = [steam, help];
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isContextMenuCommand() && !interaction.isChatInputCommand())

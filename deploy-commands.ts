@@ -2,14 +2,12 @@ import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import { logtail } from "./utils/logtailConfig";
 import { Command } from "./commands/command";
-import { subscribe } from "./commands/subscribe";
-import { unsubscribe } from "./commands/unsubscribe";
-import { list } from "./commands/list";
+import { steam } from "./commands/steam";
 import { help } from "./commands/help";
 import axios from "axios";
 
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
-const commands: Command[] = [subscribe, unsubscribe, list, help];
+const commands: Command[] = [steam, help];
 
 const commandsJSON = commands.map((command) => command.data.toJSON());
 
