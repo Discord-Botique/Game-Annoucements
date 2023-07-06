@@ -11,9 +11,11 @@ export const list = async (
   if (!interaction.guildId || !interaction.guild) return;
 
   const noSubscriptionsMessage = () =>
-    interaction.reply(
-      "There are no birthday announcements for this server! Channel managers can create some with the `/birthday subscribe` application command."
-    );
+    interaction.reply({
+      content:
+        "There are no birthday announcements for this server! Channel managers can create some with the `/birthday subscribe` application command.",
+      ephemeral: true,
+    });
 
   const subscriptions = await getBirthdaySubscriptions(interaction.guildId);
 
