@@ -14,6 +14,7 @@ export interface Database {
           birthday: string;
           channel_id: string;
           created_at: string;
+          has_year: boolean;
           id: number;
           server_id: string;
           user_id: string;
@@ -22,6 +23,7 @@ export interface Database {
           birthday: string;
           channel_id: string;
           created_at?: string;
+          has_year?: boolean;
           id?: number;
           server_id: string;
           user_id: string;
@@ -30,6 +32,7 @@ export interface Database {
           birthday?: string;
           channel_id?: string;
           created_at?: string;
+          has_year?: boolean;
           id?: number;
           server_id?: string;
           user_id?: string;

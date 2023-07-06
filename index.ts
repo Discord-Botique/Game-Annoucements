@@ -6,6 +6,7 @@ import { logtail } from "./utils/logtailConfig";
 import { Command } from "./commands/command";
 import { steam } from "./commands/steam";
 import { help } from "./commands/help";
+import { birthday } from "./commands/birthday";
 
 config();
 
@@ -24,7 +25,7 @@ events.forEach((event) => {
   else client.on(event.name, (...args) => event.execute(...args));
 });
 
-const commands: Command[] = [steam, help];
+const commands: Command[] = [steam, help, birthday];
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isContextMenuCommand() && !interaction.isChatInputCommand())

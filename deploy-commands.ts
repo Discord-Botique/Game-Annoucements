@@ -5,9 +5,10 @@ import { Command } from "./commands/command";
 import { steam } from "./commands/steam";
 import { help } from "./commands/help";
 import axios from "axios";
+import { birthday } from "./commands/birthday";
 
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
-const commands: Command[] = [steam, help];
+const commands: Command[] = [steam, help, birthday];
 
 const commandsJSON = commands.map((command) => command.data.toJSON());
 

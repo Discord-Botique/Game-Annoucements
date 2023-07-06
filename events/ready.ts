@@ -2,6 +2,7 @@ import type { Event } from "./event";
 import { ActivityType } from "discord-api-types/v10";
 import { logtail } from "../utils/logtailConfig";
 import { sendUpdates } from "../utils/sendUpdates";
+import checkBirthdays from "../utils/checkBirthdays";
 
 export const ready: Event<"ready"> = {
   name: "ready",
@@ -9,11 +10,12 @@ export const ready: Event<"ready"> = {
   async execute(client) {
     await logtail.debug(`Logged in as ${client.user.tag}!`);
     await sendUpdates(client);
+    await checkBirthdays(client);
     client.user.setPresence({
       activities: [
         {
           type: ActivityType.Streaming,
-          name: "v1.2.0",
+          name: "v1.3.0",
         },
       ],
     });
