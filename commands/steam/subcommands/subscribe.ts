@@ -3,15 +3,15 @@ import {
   ChatInputCommandInteraction,
   roleMention,
 } from "discord.js";
-import { logtail } from "../../utils/logtailConfig";
+import { logtail } from "../../../utils/logtailConfig";
 import {
   getSteamSubscription,
   getSteamGameName,
-  deleteSteamSubscription,
-} from "./api";
-import { parseGameId } from "./utils";
+  createSteamSubscription,
+} from "../api";
+import { parseGameId } from "../utils";
 
-export const unsubscribe = async (
+export const subscribe = async (
   interaction: ChatInputCommandInteraction
 ): Promise<unknown> => {
   const guildId = interaction.guildId;
@@ -22,6 +22,8 @@ export const unsubscribe = async (
     });
 
   const idOrUrl = interaction.options.getString("id-or-url", true);
+  const role = interaction.options.getRole("role-mention");
+
   const gameId = parseGameId(idOrUrl);
 
   if (!gameId)
@@ -40,22 +42,46 @@ export const unsubscribe = async (
   try {
     const channelId = interaction.channelId;
 
+    const guild = await interaction.guild?.fetch();
+    const channel = await guild?.channels
+      .fetch(channelId, {
+        force: true,
+        cache: false,
+      })
+      .catch(() => undefined);
+
+    if (!channel)
+      return interaction.reply({
+        content:
+          "Sorry! This bot is not allowed to send messages to this channel. Please update the channel permissions to allow this bot to send messages and try again.",
+        ephemeral: true,
+      });
+
     const subscription = await getSteamSubscription({
       gameId,
       channelId,
     });
 
-    if (!subscription)
-      return interaction.reply({
-        content: `Error: You are not subscribed to ${gameName} on this channel.`,
+    if (subscription) {
+      return await interaction.reply({
+        content: `${channelMention(
+          channelId
+        )} is already subscribed to ${gameName}.`,
         ephemeral: true,
       });
+    } else {
+      await createSteamSubscription({
+        gameId,
+        guildId,
+        channelId,
+        roleId: role?.id,
+      });
+    }
 
-    await deleteSteamSubscription(subscription.id);
     await interaction.reply(
-      `Unsubscribed to ${gameName}! ${
-        subscription.role_id ? roleMention(subscription.role_id) : "Users"
-      } will no longer receive announcements for this game in the ${channelMention(
+      `Subscribed to ${gameName}! ${
+        role ? roleMention(role.id) : "Users"
+      } will now receive announcements for this game in the ${channelMention(
         interaction.channelId
       )} channel.`
     );

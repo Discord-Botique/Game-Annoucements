@@ -3,7 +3,7 @@ import {
   ChatInputCommandInteraction,
   userMention,
 } from "discord.js";
-import { getActiveUsersSubscriptions } from "./api";
+import { getActiveUsersSubscriptions } from "../api";
 
 export const list = async (
   interaction: ChatInputCommandInteraction

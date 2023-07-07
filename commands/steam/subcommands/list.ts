@@ -1,10 +1,10 @@
-import { getSteamGameName, getSteamSubscriptions } from "./api";
+import { getSteamGameName, getSteamSubscriptions } from "../api";
 import {
   channelMention,
   ChatInputCommandInteraction,
   roleMention,
 } from "discord.js";
-import { getGameData } from "./utils";
+import { getGameData } from "../utils";
 
 export const list = async (
   interaction: ChatInputCommandInteraction

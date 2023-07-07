@@ -1,7 +1,7 @@
 import { ActionInterface, SubCommand } from "../utils";
-import { subscribe } from "./subscribe";
-import { unsubscribe } from "./unsubscribe";
-import { list } from "./list";
+import { subscribe } from "./subcommands/subscribe";
+import { unsubscribe } from "./subcommands/unsubscribe";
+import { list } from "./subcommands/list";
 import { Command } from "../command";
 import { SlashCommandBuilder } from "@discordjs/builders";
 
