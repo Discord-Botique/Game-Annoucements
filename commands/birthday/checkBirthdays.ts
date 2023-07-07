@@ -26,7 +26,43 @@ const getUsersWithAnniversaries = async (guild: Guild): Promise<User[]> => {
   });
 };
 
+const removeBirthdayRoles = async (guild: Guild) => {
+  try {
+    const roles = await guild.roles.fetch();
+    const birthdayRole = roles.find((role) => role.name === "BIRTHDAY LEGEND");
+
+    let roleId: string | undefined;
+    if (!birthdayRole) {
+      const newRole = await guild.roles.create({
+        name: "BIRTHDAY LEGEND",
+        mentionable: true,
+        color: "Yellow",
+      });
+      roleId = newRole?.id;
+    } else {
+      roleId = birthdayRole.id;
+    }
+
+    const members = guild.members.cache;
+
+    await Promise.all(
+      members.map(async (member) => {
+        if (roleId) {
+          await member.roles.remove(roleId);
+        }
+      })
+    );
+
+    return roleId;
+  } catch (e) {
+    await logtail.info("Failed to remove birthday role", {
+      e: String(e),
+    });
+  }
+};
+
 const sendMessageForUsers = async (users: User[], guild: Guild) => {
+  const roleId = await removeBirthdayRoles(guild);
   return Promise.all(
     users.map(async ({ user_id, channel_id, has_year, birthday }) => {
       const channel = await guild.channels.fetch(channel_id);
@@ -36,6 +72,14 @@ const sendMessageForUsers = async (users: User[], guild: Guild) => {
         channel_id,
       });
       const difference = differenceInYears(new Date(), new Date(birthday));
+
+      const member = await guild.members.fetch(user_id);
+      if (roleId)
+        await member.roles.add(roleId).catch(async (e) => {
+          await logtail.info("Failed to add birthday role", {
+            e: String(e),
+          });
+        });
 
       return channel.send(
         `Happy birthday to ${userMention(user_id)}${
@@ -73,7 +117,7 @@ const checkBirthdays = async (client: Client<true>) => {
       console.error(err);
       await logtail.error("There was an error sending anniversary messages");
     });
-  }, timeUntilNextDay);
+  }, 1000);
 };
 
 export default checkBirthdays;
