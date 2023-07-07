@@ -4,8 +4,8 @@ import {
   userMention,
 } from "discord.js";
 import { logtail } from "../../../utils/logtailConfig";
-
 import { createBirthdaySubscription, getBirthdaySubscription } from "../api";
+import { confirmChannelAccess } from "../../../utils/confirmChannelAccess";
 
 export const subscribe = async (
   interaction: ChatInputCommandInteraction
@@ -30,21 +30,8 @@ export const subscribe = async (
   const userId = interaction.user.id;
 
   try {
-    const guild = await interaction.guild?.fetch();
-    const channel = await guild?.channels
-      .fetch(channelId, {
-        force: true,
-        cache: false,
-      })
-      .catch(() => undefined);
-
-    if (!channel)
-      return interaction.reply({
-        content:
-          "Sorry! This bot is not allowed to send messages to this channel. Please update the channel permissions to allow this bot to send messages and try again.",
-        ephemeral: true,
-      });
-
+    const hasAccess = await confirmChannelAccess(interaction);
+    if (!hasAccess) return;
     const subscription = await getBirthdaySubscription({
       userId,
       channelId,

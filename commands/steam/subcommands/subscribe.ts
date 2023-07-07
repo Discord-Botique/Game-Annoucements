@@ -10,6 +10,7 @@ import {
   createSteamSubscription,
 } from "../api";
 import { parseGameId } from "../utils";
+import { confirmChannelAccess } from "../../../utils/confirmChannelAccess";
 
 export const subscribe = async (
   interaction: ChatInputCommandInteraction
@@ -41,22 +42,8 @@ export const subscribe = async (
 
   try {
     const channelId = interaction.channelId;
-
-    const guild = await interaction.guild?.fetch();
-    const channel = await guild?.channels
-      .fetch(channelId, {
-        force: true,
-        cache: false,
-      })
-      .catch(() => undefined);
-
-    if (!channel)
-      return interaction.reply({
-        content:
-          "Sorry! This bot is not allowed to send messages to this channel. Please update the channel permissions to allow this bot to send messages and try again.",
-        ephemeral: true,
-      });
-
+    const hasAccess = await confirmChannelAccess(interaction);
+    if (!hasAccess) return;
     const subscription = await getSteamSubscription({
       gameId,
       channelId,

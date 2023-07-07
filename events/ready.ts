@@ -9,13 +9,14 @@ export const ready: Event<"ready"> = {
   once: true,
   async execute(client) {
     await logtail.debug(`Logged in as ${client.user.tag}!`);
+    console.log(`Logged in as ${client.user.tag}!`);
     await sendUpdates(client);
     await checkBirthdays(client);
     client.user.setPresence({
       activities: [
         {
           type: ActivityType.Streaming,
-          name: "v1.3.3",
+          name: "v1.3.4",
         },
       ],
     });
