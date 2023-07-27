@@ -90,7 +90,7 @@ const sendMessageForUsers = async (users: User[], guild: Guild) => {
   );
 };
 
-const triggerMessages = async (client: Client<true>) => {
+const triggerMessages = async (client: Client<true>, once?: boolean) => {
   const guilds = await client.guilds.fetch();
 
   await Promise.all(
@@ -102,6 +102,7 @@ const triggerMessages = async (client: Client<true>) => {
     })
   );
 
+  if (once) return;
   await checkBirthdays(client);
 };
 
@@ -112,10 +113,17 @@ const checkBirthdays = async (client: Client<true>) => {
   );
   await logtail.debug(`Next birthday check in ${timeUntilNextDay}ms`);
 
+  triggerMessages(client, true).catch(async (err) => {
+    await logtail.error("There was an error sending birthday messages", {
+      error: String(err),
+    });
+  });
+
   setTimeout(() => {
     triggerMessages(client).catch(async (err) => {
-      console.error(err);
-      await logtail.error("There was an error sending anniversary messages");
+      await logtail.error("There was an error sending birthday messages", {
+        error: String(err),
+      });
     });
   }, timeUntilNextDay);
 };
