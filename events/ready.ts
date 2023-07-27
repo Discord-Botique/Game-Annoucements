@@ -16,7 +16,7 @@ export const ready: Event<"ready"> = {
       activities: [
         {
           type: ActivityType.Streaming,
-          name: "v1.3.5",
+          name: "v1.3.6",
         },
       ],
     });

@@ -113,12 +113,6 @@ const checkBirthdays = async (client: Client<true>) => {
   );
   await logtail.debug(`Next birthday check in ${timeUntilNextDay}ms`);
 
-  triggerMessages(client, true).catch(async (err) => {
-    await logtail.error("There was an error sending birthday messages", {
-      error: String(err),
-    });
-  });
-
   setTimeout(() => {
     triggerMessages(client).catch(async (err) => {
       await logtail.error("There was an error sending birthday messages", {
