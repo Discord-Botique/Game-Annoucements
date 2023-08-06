@@ -31,6 +31,6 @@ export interface Command {
     | MessageApplication
     | SlashCommandSubcommandsOnlyBuilder;
   execute(
-    interaction: CommandInteraction | ContextMenuCommandInteraction
+    interaction: CommandInteraction | ContextMenuCommandInteraction,
   ): Promise<unknown>;
 }

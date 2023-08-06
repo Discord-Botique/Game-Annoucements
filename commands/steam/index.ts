@@ -23,14 +23,14 @@ export const steam: Command = {
           option
             .setName("id-or-url")
             .setDescription("The game's ID or URL on Steam")
-            .setRequired(true)
+            .setRequired(true),
         )
         .addRoleOption((option) =>
           option
             .setName("role-mention")
             .setDescription("The role to ping when a new announcement is made")
-            .setRequired(false)
-        )
+            .setRequired(false),
+        ),
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -40,13 +40,13 @@ export const steam: Command = {
           option
             .setName("id-or-url")
             .setDescription("The game's ID or URL on Steam")
-            .setRequired(true)
-        )
+            .setRequired(true),
+        ),
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName(SubCommand.LIST)
-        .setDescription(`List all games your server is subscribed to on Steam`)
+        .setDescription(`List all games your server is subscribed to on Steam`),
     ),
   async execute(interaction) {
     if (!interaction.isChatInputCommand()) return;

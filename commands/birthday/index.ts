@@ -36,8 +36,8 @@ export const birthday: Command = {
               { name: "September", value: "September" },
               { name: "October", value: "October" },
               { name: "November", value: "November" },
-              { name: "December", value: "December" }
-            )
+              { name: "December", value: "December" },
+            ),
         )
         .addNumberOption((option) =>
           option
@@ -45,25 +45,25 @@ export const birthday: Command = {
             .setDescription("The day of your birthday")
             .setRequired(true)
             .setMinValue(1)
-            .setMaxValue(31)
+            .setMaxValue(31),
         )
         .addNumberOption((option) =>
           option
             .setName("year")
             .setDescription("The year of your birthday (optional)")
             .setMinValue(1950)
-            .setMaxValue(new Date().getFullYear() - 13)
-        )
+            .setMaxValue(new Date().getFullYear() - 13),
+        ),
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName(SubCommand.UNSUBSCRIBE)
-        .setDescription(`Remove your birthday announcement from this channel`)
+        .setDescription(`Remove your birthday announcement from this channel`),
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName(SubCommand.LIST)
-        .setDescription(`List all birthdays set up on on the server`)
+        .setDescription(`List all birthdays set up on on the server`),
     ),
   async execute(interaction) {
     if (!interaction.isChatInputCommand()) return;

@@ -8,7 +8,7 @@ import { createBirthdaySubscription, getBirthdaySubscription } from "../api";
 import { confirmChannelAccess } from "../../../utils/confirmChannelAccess";
 
 export const subscribe = async (
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<unknown> => {
   const guildId = interaction.guildId;
   if (!guildId)
@@ -40,7 +40,7 @@ export const subscribe = async (
     if (subscription) {
       return await interaction.reply({
         content: `${channelMention(
-          channelId
+          channelId,
         )} is already subscribed to your birthday.`,
         ephemeral: true,
       });
@@ -56,10 +56,10 @@ export const subscribe = async (
 
     await interaction.reply(
       `Subscribed to ${userMention(
-        userId
+        userId,
       )}'s birthday on ${formattedDate}! The server will now receive announcements their birthday in the ${channelMention(
-        interaction.channelId
-      )} channel.`
+        interaction.channelId,
+      )} channel.`,
     );
   } catch (error) {
     await logtail.error(String(error));

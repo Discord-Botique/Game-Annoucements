@@ -7,7 +7,7 @@ import {
 import { getGameData } from "../utils";
 
 export const list = async (
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<unknown> => {
   if (!interaction.guildId) return;
 
@@ -15,7 +15,7 @@ export const list = async (
 
   if (!subscriptions || subscriptions.length === 0)
     return interaction.reply(
-      "There are no subscriptions for this server! Create some with the `/steam subscribe` application command."
+      "There are no subscriptions for this server! Create some with the `/steam subscribe` application command.",
     );
 
   let message = "Here are the games this server is currently subscribed to:\n";

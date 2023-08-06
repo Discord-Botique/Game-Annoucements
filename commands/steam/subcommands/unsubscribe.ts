@@ -12,7 +12,7 @@ import {
 import { parseGameId } from "../utils";
 
 export const unsubscribe = async (
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<unknown> => {
   const guildId = interaction.guildId;
   if (!guildId)
@@ -56,8 +56,8 @@ export const unsubscribe = async (
       `Unsubscribed to ${gameName}! ${
         subscription.role_id ? roleMention(subscription.role_id) : "Users"
       } will no longer receive announcements for this game in the ${channelMention(
-        interaction.channelId
-      )} channel.`
+        interaction.channelId,
+      )} channel.`,
     );
   } catch (error) {
     await logtail.error(String(error), {

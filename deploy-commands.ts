@@ -15,7 +15,7 @@ const commandsJSON = commands.map((command) => command.data.toJSON());
 const commandsRoute = process.env.TEST_SERVER_ID
   ? Routes.applicationGuildCommands(
       process.env.CLIENT_ID,
-      process.env.TEST_SERVER_ID
+      process.env.TEST_SERVER_ID,
     )
   : Routes.applicationCommands(process.env.CLIENT_ID);
 
@@ -27,11 +27,11 @@ const commandsRoute = process.env.TEST_SERVER_ID
       headers: {
         Authorization: process.env.DBL_TOKEN,
       },
-    }
+    },
   ))().catch((err) =>
   logtail.error("Error updating commands in DiscordBotList", {
     error: JSON.stringify(err),
-  })
+  }),
 );
 
 rest
@@ -42,5 +42,5 @@ rest
   .catch((err) =>
     logtail.error("Error registering application commands.", {
       error: JSON.stringify(err),
-    })
+    }),
   );

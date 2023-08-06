@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from "discord.js";
 
 export const confirmChannelAccess = async (
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ) => {
   const channel = await interaction.guild?.channels
     .fetch(interaction.channelId, {

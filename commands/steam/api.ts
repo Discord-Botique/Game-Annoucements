@@ -46,7 +46,7 @@ export const getSteamGameNews = async (gameId: number) => {
           maxlength: 500,
           count: 1,
         },
-      }
+      },
     );
 
     return gameInfo.data.appnews.newsitems?.[0];
@@ -59,7 +59,7 @@ export const getSteamGameNews = async (gameId: number) => {
 };
 
 export const fetchNameFromSteam = async (
-  gameId: number
+  gameId: number,
 ): Promise<string | undefined> => {
   try {
     const gameInfo = await axios.get<AppDetails>(
@@ -68,7 +68,7 @@ export const fetchNameFromSteam = async (
         params: {
           appids: gameId,
         },
-      }
+      },
     );
 
     const gameData = gameInfo?.data[gameId];
@@ -95,7 +95,7 @@ export const fetchNameFromSteam = async (
 };
 
 export const getSteamGameName = async (
-  gameId: number
+  gameId: number,
 ): Promise<string | undefined> => {
   const { data } = await supabase
     .from("steam_games")

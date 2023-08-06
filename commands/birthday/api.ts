@@ -18,7 +18,7 @@ type User = Database["public"]["Tables"]["birthdays"]["Row"];
 
 // This method get subscriptions only for users that are still in the server
 export const getActiveUsersSubscriptions = async (
-  guild: Guild
+  guild: Guild,
 ): Promise<User[]> => {
   const subscriptions = await getBirthdaySubscriptions(guild.id);
 
@@ -29,7 +29,7 @@ export const getActiveUsersSubscriptions = async (
   });
 
   return subscriptions.filter((subscription) =>
-    users.has(subscription.user_id)
+    users.has(subscription.user_id),
   );
 };
 

@@ -100,7 +100,7 @@ export interface Database {
             columns: ["game_id"];
             referencedRelation: "steam_games";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
     };

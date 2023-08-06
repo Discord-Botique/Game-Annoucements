@@ -50,7 +50,7 @@ const removeBirthdayRoles = async (guild: Guild) => {
         if (roleId) {
           await member.roles.remove(roleId);
         }
-      })
+      }),
     );
 
     return roleId;
@@ -84,9 +84,9 @@ const sendMessageForUsers = async (users: User[], guild: Guild) => {
       return channel.send(
         `Happy birthday to ${userMention(user_id)}${
           has_year ? ` (${difference})` : ""
-        }! :birthday: Please wish them a very happy birthday.`
+        }! :birthday: Please wish them a very happy birthday.`,
       );
-    })
+    }),
   );
 };
 
@@ -99,7 +99,7 @@ const triggerMessages = async (client: Client<true>, once?: boolean) => {
       const users = await getUsersWithAnniversaries(guild);
       await logtail.debug(`Found ${users.length} users with anniversaries.`);
       if (users.length > 0) await sendMessageForUsers(users, guild);
-    })
+    }),
   );
 
   if (once) return;
@@ -109,7 +109,7 @@ const triggerMessages = async (client: Client<true>, once?: boolean) => {
 const checkBirthdays = async (client: Client<true>) => {
   const timeUntilNextDay = differenceInMilliseconds(
     addHours(startOfTomorrow(), 8),
-    new Date()
+    new Date(),
   );
   await logtail.debug(`Next birthday check in ${timeUntilNextDay}ms`);
 

@@ -6,7 +6,7 @@ import {
 import { getActiveUsersSubscriptions } from "../api";
 
 export const list = async (
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<unknown> => {
   if (!interaction.guildId || !interaction.guild) return;
 

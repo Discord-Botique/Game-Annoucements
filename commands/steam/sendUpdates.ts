@@ -9,15 +9,15 @@ import { supabase } from "../../utils/supabase";
 const messageOptions = (
   newsItem: NewsItem,
   name: string,
-  roleId: string | null
+  roleId: string | null,
 ): MessageCreateOptions => {
   const content = newsItem.contents.replace(
     "{STEAM_CLAN_IMAGE}",
-    "https://cdn.akamai.steamstatic.com/steamcommunity/public/images/clans"
+    "https://cdn.akamai.steamstatic.com/steamcommunity/public/images/clans",
   );
 
   const url = content.match(
-    /(http)?s?:?(\/\/[^"']*?\.(?:png|jpg|jpeg|gif|svg))/gi
+    /(http)?s?:?(\/\/[^"']*?\.(?:png|jpg|jpeg|gif|svg))/gi,
   )?.[0];
 
   return {
@@ -74,7 +74,7 @@ const triggerMessages = async (client: Client<true>) => {
 
           if (!channel?.isTextBased()) return null;
           const { newsItem, pushNewsItem } = await getNewsItem(
-            subscription.game_id
+            subscription.game_id,
           );
 
           if (!newsItem || !subscription.steam_games) return null;
@@ -93,7 +93,7 @@ const triggerMessages = async (client: Client<true>) => {
           const message = messageOptions(
             newsItem,
             gameData.name,
-            subscription.role_id
+            subscription.role_id,
           );
           await channel.send(message).catch(() => {
             throw new Error(JSON.stringify(message));
@@ -112,7 +112,7 @@ const triggerMessages = async (client: Client<true>) => {
           });
         }
       });
-    })
+    }),
   );
 
   fetchedNewsItems.length = 0;
@@ -122,7 +122,7 @@ const triggerMessages = async (client: Client<true>) => {
 export const sendUpdates = async (client: Client<true>) => {
   const timeUntilNextHour = differenceInMilliseconds(
     endOfHour(new Date()),
-    new Date()
+    new Date(),
   );
   await logtail.debug(`Next update check in ${timeUntilNextHour}ms`);
 

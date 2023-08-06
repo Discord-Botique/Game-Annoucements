@@ -4,7 +4,7 @@ import { logtail } from "../../../utils/logtailConfig";
 import { deleteBirthdaySubscription, getBirthdaySubscription } from "../api";
 
 export const unsubscribe = async (
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<unknown> => {
   const guildId = interaction.guildId;
   if (!guildId)
@@ -31,8 +31,8 @@ export const unsubscribe = async (
     await deleteBirthdaySubscription(subscription.id);
     await interaction.reply(
       `Unsubscribed to birthday announcements for ${userMention(
-        userId
-      )} on this channel.`
+        userId,
+      )} on this channel.`,
     );
   } catch (error) {
     await logtail.error(String(error));

@@ -13,7 +13,7 @@ import { parseGameId } from "../utils";
 import { confirmChannelAccess } from "../../../utils/confirmChannelAccess";
 
 export const subscribe = async (
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<unknown> => {
   const guildId = interaction.guildId;
   if (!guildId)
@@ -52,7 +52,7 @@ export const subscribe = async (
     if (subscription) {
       return await interaction.reply({
         content: `${channelMention(
-          channelId
+          channelId,
         )} is already subscribed to ${gameName}.`,
         ephemeral: true,
       });
@@ -69,8 +69,8 @@ export const subscribe = async (
       `Subscribed to ${gameName}! ${
         role ? roleMention(role.id) : "Users"
       } will now receive announcements for this game in the ${channelMention(
-        interaction.channelId
-      )} channel.`
+        interaction.channelId,
+      )} channel.`,
     );
   } catch (error) {
     await logtail.error(String(error), {
