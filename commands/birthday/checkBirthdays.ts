@@ -31,14 +31,14 @@ const removeBirthdayRoles = async (guild: Guild) => {
     const roles = await guild.roles.fetch();
     const birthdayRole = roles.find((role) => role.name === "BIRTHDAY LEGEND");
 
-    let roleId: string | undefined;
+    let roleId: string;
     if (!birthdayRole) {
       const newRole = await guild.roles.create({
         name: "BIRTHDAY LEGEND",
         mentionable: true,
         color: "Yellow",
       });
-      roleId = newRole?.id;
+      roleId = newRole.id;
     } else {
       roleId = birthdayRole.id;
     }
@@ -46,11 +46,7 @@ const removeBirthdayRoles = async (guild: Guild) => {
     const members = guild.members.cache;
 
     await Promise.all(
-      members.map(async (member) => {
-        if (roleId) {
-          await member.roles.remove(roleId);
-        }
-      }),
+      members.map(async (member) => member.roles.remove(roleId)),
     );
 
     return roleId;
