@@ -1,4 +1,5 @@
 module.exports = {
+  ignorePatterns: ["supabase/"],
   parser: "@typescript-eslint/parser",
   root: true,
   parserOptions: {

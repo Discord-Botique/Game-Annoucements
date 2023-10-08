@@ -1,2 +1,2 @@
 source .env
-npx supabase gen types typescript --db-url "$SUPABASE_DB" > ./utils/supabase.types.ts
+npx supabase gen types typescript --db-url "$SB_DB" > ./supabase/functions/_shared/supabase.types.ts

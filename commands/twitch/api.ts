@@ -173,7 +173,7 @@ const createTwitchSubscription = async (userId: string, token: string) => {
         },
         transport: {
           method: "webhook",
-          callback: "https://api.example.com/webhooks/callback",
+          callback: process.env.WEBHOOK_URL,
           secret: process.env.TWITCH_SUBSCRIPTION_SECRET,
         },
       },

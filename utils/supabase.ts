@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "./supabase.types";
+import type { Database } from "../supabase/functions/_shared/supabase.types";
 
 export const supabase = createClient<Database>(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY,
+  process.env.SB_URL,
+  process.env.SB_KEY,
   { auth: { persistSession: false } },
 );

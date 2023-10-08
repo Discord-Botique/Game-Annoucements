@@ -14,7 +14,9 @@
     "lint": "eslint --ext .ts,.json .",
     "lintfix": "eslint --ext .ts,.json . --fix",
     "format": "prettier --write \"**/*.{ts,json}\"",
-    "format:lint": "prettier --check \"**/*.{ts,json}\""
+    "format:lint": "prettier --check \"**/*.{ts,json}\"",
+    "deploy-functions": "npx supabase functions deploy",
+    "deploy-secrets": "npx supabase secrets set --env-file .env"
   },
   "dependencies": {
     "@discordjs/rest": "^2.0.1",

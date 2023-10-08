@@ -4,7 +4,7 @@ import differenceInYears from "date-fns/differenceInYears";
 import startOfTomorrow from "date-fns/startOfTomorrow";
 import { userMention } from "@discordjs/builders";
 import { logtail } from "../../utils/logtailConfig";
-import { Database } from "../../utils/supabase.types";
+import { Database } from "../../supabase/functions/_shared/supabase.types";
 import addHours from "date-fns/addHours";
 import getMonth from "date-fns/getMonth";
 import getDate from "date-fns/getDate";

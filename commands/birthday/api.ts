@@ -1,6 +1,6 @@
 import { supabase } from "../../utils/supabase";
 import { Guild } from "discord.js";
-import { Database } from "../../utils/supabase.types";
+import { Database } from "../../supabase/functions/_shared/supabase.types";
 
 export const getBirthdaySubscriptions = async (guildId: string) => {
   const { data } = await supabase
