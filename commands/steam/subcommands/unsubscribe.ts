@@ -54,7 +54,7 @@ export const unsubscribe = async (
     await deleteSteamSubscription(subscription.id);
     await interaction.reply(
       `Unsubscribed to ${gameName}! ${
-        subscription.role_id ? roleMention(subscription.role_id) : "Users"
+        subscription.role_id ? roleMention(subscription.role_id) : "Members"
       } will no longer receive announcements for this game in the ${channelMention(
         interaction.channelId,
       )} channel.`,

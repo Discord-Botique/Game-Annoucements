@@ -8,5 +8,8 @@ declare namespace NodeJS {
     SUPABASE_DB: string;
     TEST_SERVER_ID?: string;
     DBL_TOKEN: string;
+    TWITCH_CLIENT_ID: string;
+    TWITCH_CLIENT_SECRET: string;
+    TWITCH_SUBSCRIPTION_SECRET: string;
   }
 }

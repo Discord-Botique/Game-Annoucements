@@ -7,6 +7,7 @@ import { Command } from "./commands/command";
 import { steam } from "./commands/steam";
 import { help } from "./commands/help";
 import { birthday } from "./commands/birthday";
+import { twitch } from "./commands/twitch";
 
 config();
 
@@ -25,7 +26,7 @@ events.forEach((event) => {
   else client.on(event.name, (...args) => event.execute(...args));
 });
 
-const commands: Command[] = [steam, help, birthday];
+const commands: Command[] = [steam, help, birthday, twitch];
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isContextMenuCommand() && !interaction.isChatInputCommand())

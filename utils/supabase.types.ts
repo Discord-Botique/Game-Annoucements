@@ -103,6 +103,39 @@ export interface Database {
           },
         ];
       };
+      twitch_subscriptions: {
+        Row: {
+          channel_id: string;
+          created_at: string;
+          id: number;
+          role_id: string | null;
+          server_id: string;
+          subscription_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          channel_id: string;
+          created_at?: string;
+          id?: number;
+          role_id?: string | null;
+          server_id: string;
+          subscription_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          channel_id?: string;
+          created_at?: string;
+          id?: number;
+          role_id?: string | null;
+          server_id?: string;
+          subscription_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

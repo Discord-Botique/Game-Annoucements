@@ -67,7 +67,7 @@ export const subscribe = async (
 
     await interaction.reply(
       `Subscribed to ${gameName}! ${
-        role ? roleMention(role.id) : "Users"
+        role ? roleMention(role.id) : "Members"
       } will now receive announcements for this game in the ${channelMention(
         interaction.channelId,
       )} channel.`,

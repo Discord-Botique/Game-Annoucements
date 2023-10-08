@@ -16,15 +16,6 @@ interface MessageApplication extends MessageApplicationData {
   toJSON(): MessageApplicationData;
 }
 
-export const createMessageApplication = (name: string): MessageApplication => ({
-  name,
-  type: 3,
-  toJSON: () => ({
-    name,
-    type: 3,
-  }),
-});
-
 export interface Command {
   data:
     | Omit<SlashCommandBuilder, "addSubcommandGroup" | "addSubcommand">
