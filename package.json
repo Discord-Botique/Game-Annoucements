@@ -8,9 +8,7 @@
   "scripts": {
     "generate": "./generate-types.sh",
     "start": "yarn deploy-commands && ts-node .",
-    "watch": "tsc --watch",
     "deploy-commands": "ts-node deploy-commands.ts",
-    "build": "tsc",
     "lint": "eslint --ext .ts,.json .",
     "lintfix": "eslint --ext .ts,.json . --fix",
     "format": "prettier --write \"**/*.{ts,json}\"",
