@@ -28,8 +28,8 @@ Deno.serve(async (req) => {
     });
   }
 
-  const sbURL = Deno.env.get("SB_URL");
-  const sbKey = Deno.env.get("SB_KEY");
+  const sbURL = Deno.env.get("SUPABASE_URL");
+  const sbKey = Deno.env.get("SUPABASE_ANON_KEY");
 
   if (!sbURL || !sbKey) {
     return new Response("Missing secrets", {
