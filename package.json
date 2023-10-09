@@ -2,14 +2,14 @@
   "name": "bot-template",
   "version": "1.0.0",
   "description": "A bot used to log information about a Discord server",
-  "main": "index.js",
+  "main": "index.ts",
   "author": "Luis Augusto",
   "license": "MIT",
   "scripts": {
     "generate": "./generate-types.sh",
-    "start": "yarn deploy-commands && node .",
+    "start": "yarn deploy-commands && ts-node .",
     "watch": "tsc --watch",
-    "deploy-commands": "node deploy-commands.js",
+    "deploy-commands": "ts-node deploy-commands.ts",
     "build": "tsc",
     "lint": "eslint --ext .ts,.json .",
     "lintfix": "eslint --ext .ts,.json . --fix",
@@ -36,6 +36,8 @@
     "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.3",
     "supabase": "^1.99.5",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
   },
   "engines": {

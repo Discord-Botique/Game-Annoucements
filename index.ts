@@ -1,3 +1,4 @@
+/// <reference types="./module" />
 import { config } from "dotenv";
 import { ready } from "./events/ready";
 import { Client, ClientEvents } from "discord.js";

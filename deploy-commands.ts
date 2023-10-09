@@ -1,6 +1,7 @@
+/// <reference types="./module" />
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
-import { logtail } from "./utils/logtailConfig";
+import { logtail } from "@utils/logtailConfig";
 import { Command } from "./commands/command";
 import { steam } from "./commands/steam";
 import { help } from "./commands/help";
