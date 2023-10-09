@@ -17,11 +17,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node16",
-    "baseUrl": ".",
-    "paths": {
-      "@utils/*": ["./utils/*"]
-    }
+    "moduleResolution": "node16"
   },
   "exclude": ["node_modules", "supabase"]
 }
