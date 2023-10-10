@@ -1,15 +1,8 @@
-import { config } from "dotenv";
-import { ready } from "./events/ready";
+import { ready } from "@events/ready";
 import { Client, ClientEvents } from "discord.js";
-import type { Event } from "./events/event";
-import { logtail } from "./utils/logtailConfig";
-import { Command } from "./commands/command";
-import { steam } from "./commands/steam";
-import { help } from "./commands/help";
-import { birthday } from "./commands/birthday";
-import { twitch } from "./commands/twitch";
-
-config();
+import type { Event } from "@events/types";
+import { logtail } from "@utils/logtail";
+import { interactionCreate } from "@events/interactionCreate";
 
 const client = new Client({
   // https://discord.com/developers/docs/topics/gateway#list-of-intents
@@ -18,7 +11,7 @@ const client = new Client({
   partials: [],
 });
 
-const events: Event<keyof ClientEvents>[] = [ready];
+const events: Event<keyof ClientEvents>[] = [ready, interactionCreate];
 
 events.forEach((event) => {
   // The ready event should only run once, when the app is ready
@@ -26,21 +19,8 @@ events.forEach((event) => {
   else client.on(event.name, (...args) => event.execute(...args));
 });
 
-const commands: Command[] = [steam, help, birthday, twitch];
-
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isContextMenuCommand() && !interaction.isChatInputCommand())
-    return;
-  const { commandName } = interaction;
-
-  const command = commands.find(({ data }) => data.name === commandName);
-  await command?.execute(interaction);
-});
-
-(() => {
-  client.login(process.env.TOKEN).catch((err) =>
-    logtail.error("Could not login to Discord.", {
-      error: JSON.stringify(err),
-    }),
-  );
-})();
+client.login(process.env.TOKEN).catch((err) =>
+  logtail.error("Could not login to Discord.", {
+    error: JSON.stringify(err),
+  }),
+);

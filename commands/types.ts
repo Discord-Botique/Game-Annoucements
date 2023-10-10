@@ -1,8 +1,11 @@
-import {
+import type {
   SlashCommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders";
-import { CommandInteraction, ContextMenuCommandInteraction } from "discord.js";
+import type {
+  CommandInteraction,
+  ContextMenuCommandInteraction,
+} from "discord.js";
 
 // To learn about message commands, visit
 // https://discord.com/developers/docs/interactions/application-commands#message-commands

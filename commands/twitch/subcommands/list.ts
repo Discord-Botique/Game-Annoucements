@@ -3,7 +3,8 @@ import {
   ChatInputCommandInteraction,
   roleMention,
 } from "discord.js";
-import { authorizeTwitch, findTwitchUsers, getAllSubscriptions } from "../api";
+import { getAllSubscriptions } from "../api";
+import { TwitchApi } from "@apis/twitch";
 
 export const list = async (
   interaction: ChatInputCommandInteraction,
@@ -17,17 +18,13 @@ export const list = async (
       "There are no subscriptions for this server! Create some with the `/twitch subscribe` application command.",
     );
 
-  const oauth = await authorizeTwitch();
-  if (!oauth)
-    return interaction.reply({
-      content: "Something went wrong with Twitch authorization",
-      ephemeral: true,
-    });
+  const twitch = new TwitchApi();
+  await twitch.isReady();
 
   const userIds = [
     ...new Set(subscriptions.map((subscription) => subscription.user_id)),
   ];
-  const users = await findTwitchUsers(userIds, oauth.access_token);
+  const users = await twitch.findUsers(userIds);
 
   let message =
     "Here are the Twitch streamers this server is currently subscribed to:\n";

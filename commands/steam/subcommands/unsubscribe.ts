@@ -3,7 +3,7 @@ import {
   ChatInputCommandInteraction,
   roleMention,
 } from "discord.js";
-import { logtail } from "../../../utils/logtailConfig";
+import { logtail } from "@utils/logtail";
 import {
   getSteamSubscription,
   getSteamGameName,

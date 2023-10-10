@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, userMention } from "discord.js";
-import { logtail } from "../../../utils/logtailConfig";
+import { logtail } from "@utils/logtail";
 
 import { deleteBirthdaySubscription, getBirthdaySubscription } from "../api";
 

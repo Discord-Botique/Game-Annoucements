@@ -1,12 +1,12 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
-import { logtail } from "./utils/logtailConfig";
-import { Command } from "./commands/command";
-import { steam } from "./commands/steam";
-import { help } from "./commands/help";
+import { logtail } from "@utils/logtail";
+import { Command } from "@commands/types";
+import { steam } from "@commands/steam";
+import { help } from "@commands/help";
 import axios from "axios";
-import { birthday } from "./commands/birthday";
-import { twitch } from "./commands/twitch";
+import { birthday } from "@commands/birthday";
+import { twitch } from "@commands/twitch";
 
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
 const commands: Command[] = [steam, help, birthday, twitch];

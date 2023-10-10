@@ -2,7 +2,7 @@ import { ActionInterface, SubCommand } from "../utils";
 import { subscribe } from "./subcommands/subscribe";
 import { unsubscribe } from "./subcommands/unsubscribe";
 import { list } from "./subcommands/list";
-import { Command } from "../command";
+import { Command } from "../types";
 import { SlashCommandBuilder } from "@discordjs/builders";
 
 const actions: ActionInterface = {

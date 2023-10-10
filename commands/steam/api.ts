@@ -1,6 +1,6 @@
 import axios from "axios";
-import { supabase } from "../../utils/supabase";
-import { logtail } from "../../utils/logtailConfig";
+import { supabase } from "@utils/supabase";
+import { logtail } from "@utils/logtail";
 
 interface AppDetails {
   [key: string]:

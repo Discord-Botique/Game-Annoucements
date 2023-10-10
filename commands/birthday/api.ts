@@ -1,4 +1,4 @@
-import { supabase } from "../../utils/supabase";
+import { supabase } from "@utils/supabase";
 import { Guild } from "discord.js";
 import { Database } from "../../supabase/functions/_shared/supabase.types";
 

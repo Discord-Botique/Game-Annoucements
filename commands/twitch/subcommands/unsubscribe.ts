@@ -1,11 +1,7 @@
 import { channelMention, ChatInputCommandInteraction } from "discord.js";
-import {
-  authorizeTwitch,
-  findTwitchUser,
-  getSubscription,
-  removeSubscription,
-} from "../api";
-import { logtail } from "../../../utils/logtailConfig";
+import { getSubscription, removeSubscription } from "../api";
+import { logtail } from "@utils/logtail";
+import { TwitchApi } from "@apis/twitch";
 
 export const unsubscribe = async (
   interaction: ChatInputCommandInteraction,
@@ -15,14 +11,10 @@ export const unsubscribe = async (
   const username = interaction.options.getString("username", true);
 
   try {
-    const oauth = await authorizeTwitch();
-    if (!oauth)
-      return interaction.reply({
-        content: "Something went wrong with Twitch authorization",
-        ephemeral: true,
-      });
+    const twitch = new TwitchApi();
+    await twitch.isReady();
 
-    const twitchUser = await findTwitchUser(username, oauth.access_token);
+    const twitchUser = await twitch.findUser(username);
 
     if (!twitchUser)
       return interaction.reply({
@@ -46,7 +38,7 @@ export const unsubscribe = async (
         user_id: twitchUser.id,
         channel_id: interaction.channelId,
       },
-      oauth.access_token,
+      twitch,
     );
     await interaction.reply({
       content: `${channelMention(

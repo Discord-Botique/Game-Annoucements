@@ -17,7 +17,15 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node16"
+    "moduleResolution": "node16",
+    "baseUrl": ".",
+    "paths": {
+      "@utils": ["./utils/index"],
+      "@utils/*": ["./utils/*"],
+      "@apis/*": ["./apis/*"],
+      "@commands/*": ["./commands/*"],
+      "@events/*": ["./events/*"]
+    }
   },
   "exclude": ["node_modules", "supabase"]
 }

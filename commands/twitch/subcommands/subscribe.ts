@@ -3,13 +3,9 @@ import {
   ChatInputCommandInteraction,
   roleMention,
 } from "discord.js";
-import { logtail } from "../../../utils/logtailConfig";
-import {
-  authorizeTwitch,
-  createSubscription,
-  findTwitchUser,
-  getSubscription,
-} from "../api";
+import { logtail } from "@utils/logtail";
+import { createSubscription, getSubscription } from "../api";
+import { TwitchApi } from "@apis/twitch";
 
 export const subscribe = async (
   interaction: ChatInputCommandInteraction,
@@ -20,14 +16,10 @@ export const subscribe = async (
   const role = interaction.options.getRole("role-mention");
 
   try {
-    const oauth = await authorizeTwitch();
-    if (!oauth)
-      return interaction.reply({
-        content: "Something went wrong with Twitch authorization",
-        ephemeral: true,
-      });
+    const twitch = new TwitchApi();
+    await twitch.isReady();
 
-    const twitchUser = await findTwitchUser(username, oauth.access_token);
+    const twitchUser = await twitch.findUser(username);
 
     if (!twitchUser)
       return interaction.reply({
@@ -53,7 +45,7 @@ export const subscribe = async (
         role_id: role?.id,
         channel_id: interaction.channelId,
       },
-      oauth.access_token,
+      twitch,
     );
 
     await interaction.reply({

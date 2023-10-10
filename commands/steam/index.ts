@@ -1,4 +1,4 @@
-import { Command } from "../command";
+import { Command } from "../types";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { subscribe } from "./subcommands/subscribe";
 import { unsubscribe } from "./subcommands/unsubscribe";

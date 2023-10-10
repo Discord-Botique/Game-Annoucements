@@ -3,7 +3,7 @@ import differenceInMilliseconds from "date-fns/differenceInMilliseconds";
 import differenceInYears from "date-fns/differenceInYears";
 import startOfTomorrow from "date-fns/startOfTomorrow";
 import { userMention } from "@discordjs/builders";
-import { logtail } from "../../utils/logtailConfig";
+import { logtail } from "@utils/logtail";
 import { Database } from "../../supabase/functions/_shared/supabase.types";
 import addHours from "date-fns/addHours";
 import getMonth from "date-fns/getMonth";
