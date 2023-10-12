@@ -11,11 +11,10 @@ export const subscribe = async (
 ): Promise<unknown> => {
   if (!interaction.guildId) return;
 
-  const username = interaction.options.getString("username", true);
   const role = interaction.options.getRole("role-mention");
 
   try {
-    const twitch = new TwitchApi(username);
+    const twitch = new TwitchApi(interaction);
     await twitch.isReady();
 
     if (!twitch.user)
@@ -24,9 +23,7 @@ export const subscribe = async (
         ephemeral: true,
       });
 
-    const supabaseSubscription = await twitch.getSubscription(
-      interaction.channelId,
-    );
+    const supabaseSubscription = await twitch.getSubscription();
 
     if (supabaseSubscription)
       return interaction.reply({
@@ -34,11 +31,7 @@ export const subscribe = async (
         ephemeral: true,
       });
 
-    await twitch.createSubscription({
-      server_id: interaction.guildId,
-      role_id: role?.id,
-      channel_id: interaction.channelId,
-    });
+    await twitch.createSubscription();
 
     await interaction.reply({
       content: `Subscribed to ${twitch.user.display_name} on Twitch! ${

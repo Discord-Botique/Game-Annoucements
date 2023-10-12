@@ -10,17 +10,15 @@ export const list = async (
 ): Promise<unknown> => {
   if (!interaction.guildId) return;
 
-  const subscriptions = await TwitchApi.getAllSubscriptions(
-    interaction.guildId,
-  );
+  const twitch = new TwitchApi(interaction);
+  await twitch.isReady();
+
+  const subscriptions = await twitch.getAllSubscriptions();
 
   if (!subscriptions || subscriptions.length === 0)
     return interaction.reply(
       "There are no subscriptions for this server! Create some with the `/twitch subscribe` application command.",
     );
-
-  const twitch = new TwitchApi();
-  await twitch.isReady();
 
   const userIds = [
     ...new Set(subscriptions.map((subscription) => subscription.user_id)),

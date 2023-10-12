@@ -7,13 +7,16 @@ import {
   TwitchSubscriptionResponse,
 } from "./types";
 import { supabase } from "@utils/supabase";
+import { ChatInputCommandInteraction } from "discord.js";
 
 export class TwitchApi {
   private axios: AxiosInstance = create();
   private ready = false;
   user: TwitchUser | undefined;
+  private interaction: ChatInputCommandInteraction;
 
-  constructor(username?: string) {
+  constructor(interaction: ChatInputCommandInteraction) {
+    this.interaction = interaction;
     this.authorize()
       .then(async (data) => {
         this.axios = create({
@@ -23,6 +26,8 @@ export class TwitchApi {
             "Client-Id": process.env.TWITCH_CLIENT_ID,
           },
         });
+
+        const username = interaction.options.getString("username");
         if (username) this.user = await this.findUser(username);
         this.ready = true;
       })
@@ -31,19 +36,6 @@ export class TwitchApi {
           error: String(e),
         }),
       );
-  }
-
-  async isReady(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      let count = 0;
-      const check = () => {
-        count += 1;
-        if (this.ready) return resolve(true);
-        if (count > 40) return reject("Twitch API never became ready");
-        setTimeout(check, 50);
-      };
-      check();
-    });
   }
 
   // https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#client-credentials-grant-flow
@@ -63,8 +55,21 @@ export class TwitchApi {
     return response.data;
   }
 
+  async isReady(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      let count = 0;
+      const check = () => {
+        count += 1;
+        if (this.ready) return resolve(true);
+        if (count > 40) return reject("Twitch API never became ready");
+        setTimeout(check, 50);
+      };
+      check();
+    });
+  }
+
   // https://dev.twitch.tv/docs/api/reference/#get-users
-  async findUser(username: string): Promise<TwitchUser | undefined> {
+  private async findUser(username: string): Promise<TwitchUser | undefined> {
     try {
       const response = await this.axios.get<{
         data: TwitchUser[];
@@ -157,50 +162,32 @@ export class TwitchApi {
     }
   }
 
-  async deleteSubscription(subscriptionId: string) {
-    try {
-      await this.axios.delete("/eventsub/subscriptions", {
-        params: {
-          id: subscriptionId,
-        },
-      });
-    } catch (e) {
-      await logtail.error(`Error deleting subscription ${subscriptionId}`, {
-        error: String(e),
-      });
-      return undefined;
-    }
-  }
-
-  static async getAllSubscriptions(guildId: string) {
+  async getAllSubscriptions() {
     const { data } = await supabase
       .from("twitch_subscriptions")
       .select()
       .match({
-        server_id: guildId,
+        server_id: this.interaction.guildId,
       })
       .order("channel_id", { ascending: true });
 
     return data;
   }
 
-  async getSubscription(channel_id: string) {
+  async getSubscription() {
     if (!this.user) throw new Error("User not found");
     const data = await supabase
       .from("twitch_subscriptions")
       .select()
-      .match({ channel_id, user_id: this.user.id })
+      .match({ channel_id: this.interaction.channelId, user_id: this.user.id })
       .maybeSingle();
 
     return data.data;
   }
 
-  async createSubscription(data: {
-    server_id: string;
-    channel_id: string;
-    role_id?: string;
-  }) {
-    if (!this.user) throw new Error("User not found");
+  async createSubscription() {
+    if (!this.user || !this.interaction.guildId)
+      throw new Error("User or Guild not found");
     const twitchSubscription = await this.getTwitchSubscription();
     let subscription_id: string;
 
@@ -212,19 +199,23 @@ export class TwitchApi {
       subscription_id = twitchSubscription.id;
     }
 
-    const { error } = await supabase
-      .from("twitch_subscriptions")
-      .insert({ ...data, subscription_id, user_id: this.user.id });
+    const { error } = await supabase.from("twitch_subscriptions").insert({
+      server_id: this.interaction.guildId,
+      channel_id: this.interaction.channelId,
+      role_id: this.interaction.options.getRole("role-mention")?.id,
+      subscription_id,
+      user_id: this.user.id,
+    });
 
     if (error) throw new Error(error.message);
   }
 
-  async removeSubscription(channel_id: string) {
+  async removeSubscription() {
     if (!this.user) throw new Error("User not found");
     const { error } = await supabase
       .from("twitch_subscriptions")
       .delete()
-      .match({ channel_id, user_id: this.user.id });
+      .match({ channel_id: this.interaction.channelId, user_id: this.user.id });
 
     if (error) throw new Error(error.message);
 
@@ -239,5 +230,20 @@ export class TwitchApi {
     const twitchSubscription = await this.getTwitchSubscription();
     if (!twitchSubscription) return;
     await this.deleteSubscription(twitchSubscription.id);
+  }
+
+  private async deleteSubscription(subscriptionId: string) {
+    try {
+      await this.axios.delete("/eventsub/subscriptions", {
+        params: {
+          id: subscriptionId,
+        },
+      });
+    } catch (e) {
+      await logtail.error(`Error deleting subscription ${subscriptionId}`, {
+        error: String(e),
+      });
+      return undefined;
+    }
   }
 }

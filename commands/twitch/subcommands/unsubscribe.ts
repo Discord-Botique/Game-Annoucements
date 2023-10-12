@@ -7,10 +7,8 @@ export const unsubscribe = async (
 ): Promise<unknown> => {
   if (!interaction.guildId) return;
 
-  const username = interaction.options.getString("username", true);
-
   try {
-    const twitch = new TwitchApi(username);
+    const twitch = new TwitchApi(interaction);
     await twitch.isReady();
 
     if (!twitch.user)
@@ -19,9 +17,7 @@ export const unsubscribe = async (
         ephemeral: true,
       });
 
-    const supabaseSubscription = await twitch.getSubscription(
-      interaction.channelId,
-    );
+    const supabaseSubscription = await twitch.getSubscription();
 
     if (!supabaseSubscription)
       return interaction.reply({
@@ -29,7 +25,7 @@ export const unsubscribe = async (
         ephemeral: true,
       });
 
-    await twitch.removeSubscription(interaction.channelId);
+    await twitch.removeSubscription();
     await interaction.reply({
       content: `${channelMention(
         interaction.channelId,
