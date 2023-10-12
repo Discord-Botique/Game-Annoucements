@@ -4,12 +4,8 @@ import {
   roleMention,
 } from "discord.js";
 import { logtail } from "@utils/logtail";
-import {
-  getSteamSubscription,
-  getSteamGameName,
-  deleteSteamSubscription,
-} from "../api";
 import { parseGameId } from "../utils";
+import { SteamApi } from "@apis/steam";
 
 export const unsubscribe = async (
   interaction: ChatInputCommandInteraction,
@@ -30,7 +26,8 @@ export const unsubscribe = async (
       ephemeral: true,
     });
 
-  const gameName = await getSteamGameName(gameId);
+  const steam = new SteamApi(gameId);
+  const gameName = (await steam.getGameDetails())?.name;
   if (!gameName)
     return interaction.reply({
       content: `Could not find a game with ID ${gameId} on Steam.`,
@@ -40,8 +37,7 @@ export const unsubscribe = async (
   try {
     const channelId = interaction.channelId;
 
-    const subscription = await getSteamSubscription({
-      gameId,
+    const subscription = await steam.getSubscription({
       channelId,
     });
 
@@ -51,7 +47,7 @@ export const unsubscribe = async (
         ephemeral: true,
       });
 
-    await deleteSteamSubscription(subscription.id);
+    await SteamApi.deleteSubscription(subscription.id);
     await interaction.reply(
       `Unsubscribed to ${gameName}! ${
         subscription.role_id ? roleMention(subscription.role_id) : "Members"

@@ -2,9 +2,10 @@ import differenceInMilliseconds from "date-fns/differenceInMilliseconds";
 import endOfHour from "date-fns/endOfHour";
 import { Client, MessageCreateOptions, roleMention } from "discord.js";
 import { logtail } from "@utils/logtail";
-import { getSteamGameNews, getSteamSubscriptions, NewsItem } from "./api";
+import type { NewsItem } from "@apis/steam/types";
 import { getGameData } from "./utils";
 import { supabase } from "@utils/supabase";
+import { SteamApi } from "@apis/steam";
 
 const messageOptions = (
   newsItem: NewsItem,
@@ -47,8 +48,9 @@ const triggerMessages = async (client: Client<true>) => {
   const fetchedNewsItems: NewsItem[] = [];
   const getNewsItem = async (id: number) => {
     const fetchedItem = fetchedNewsItems.find((item) => item.appid === id);
+    const steam = new SteamApi(id);
     return {
-      newsItem: fetchedItem || (await getSteamGameNews(id)),
+      newsItem: fetchedItem || (await steam.getNewsForGame()),
       pushNewsItem: Boolean(!fetchedItem),
     };
   };
@@ -57,7 +59,7 @@ const triggerMessages = async (client: Client<true>) => {
     guilds.map(async (oathGuild) => {
       const guild = await oathGuild.fetch();
 
-      const subscriptions = await getSteamSubscriptions(guild.id);
+      const subscriptions = await SteamApi.getSubscriptions(guild.id);
 
       subscriptions?.map(async (subscription) => {
         try {

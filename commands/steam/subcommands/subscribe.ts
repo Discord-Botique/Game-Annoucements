@@ -4,13 +4,9 @@ import {
   roleMention,
 } from "discord.js";
 import { logtail } from "@utils/logtail";
-import {
-  getSteamSubscription,
-  getSteamGameName,
-  createSteamSubscription,
-} from "../api";
 import { parseGameId } from "../utils";
 import { confirmChannelAccess } from "@utils";
+import { SteamApi } from "@apis/steam";
 
 export const subscribe = async (
   interaction: ChatInputCommandInteraction,
@@ -33,7 +29,8 @@ export const subscribe = async (
       ephemeral: true,
     });
 
-  const gameName = await getSteamGameName(gameId);
+  const steam = new SteamApi(gameId);
+  const gameName = (await steam.getGameDetails())?.name;
   if (!gameName)
     return interaction.reply({
       content: `Could not find a game with ID ${gameId} on Steam.`,
@@ -44,8 +41,7 @@ export const subscribe = async (
     const channelId = interaction.channelId;
     const hasAccess = await confirmChannelAccess(interaction);
     if (!hasAccess) return;
-    const subscription = await getSteamSubscription({
-      gameId,
+    const subscription = await steam.getSubscription({
       channelId,
     });
 
@@ -57,8 +53,7 @@ export const subscribe = async (
         ephemeral: true,
       });
     } else {
-      await createSteamSubscription({
-        gameId,
+      await steam.createSubscription({
         guildId,
         channelId,
         roleId: role?.id,

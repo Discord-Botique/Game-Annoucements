@@ -1,17 +1,17 @@
-import { getSteamGameName, getSteamSubscriptions } from "../api";
 import {
   channelMention,
   ChatInputCommandInteraction,
   roleMention,
 } from "discord.js";
 import { getGameData } from "../utils";
+import { SteamApi } from "@apis/steam";
 
 export const list = async (
   interaction: ChatInputCommandInteraction,
 ): Promise<unknown> => {
   if (!interaction.guildId) return;
 
-  const subscriptions = await getSteamSubscriptions(interaction.guildId);
+  const subscriptions = await SteamApi.getSubscriptions(interaction.guildId);
 
   if (!subscriptions || subscriptions.length === 0)
     return interaction.reply(
@@ -22,10 +22,12 @@ export const list = async (
 
   const updateMessage = async (index: number) => {
     const subscription = subscriptions[index];
+    const steam = new SteamApi(subscription.game_id);
+
     const gameName =
       subscription.steam_games !== null
         ? getGameData(subscription.steam_games).name
-        : await getSteamGameName(subscription.game_id);
+        : (await steam.getGameDetails())?.name;
 
     if (
       index === 0 ||
