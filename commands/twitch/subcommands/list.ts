@@ -3,7 +3,6 @@ import {
   ChatInputCommandInteraction,
   roleMention,
 } from "discord.js";
-import { getAllSubscriptions } from "../api";
 import { TwitchApi } from "@apis/twitch";
 
 export const list = async (
@@ -11,7 +10,9 @@ export const list = async (
 ): Promise<unknown> => {
   if (!interaction.guildId) return;
 
-  const subscriptions = await getAllSubscriptions(interaction.guildId);
+  const subscriptions = await TwitchApi.getAllSubscriptions(
+    interaction.guildId,
+  );
 
   if (!subscriptions || subscriptions.length === 0)
     return interaction.reply(

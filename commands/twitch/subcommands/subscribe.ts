@@ -4,7 +4,6 @@ import {
   roleMention,
 } from "discord.js";
 import { logtail } from "@utils/logtail";
-import { createSubscription, getSubscription } from "../api";
 import { TwitchApi } from "@apis/twitch";
 
 export const subscribe = async (
@@ -16,51 +15,44 @@ export const subscribe = async (
   const role = interaction.options.getRole("role-mention");
 
   try {
-    const twitch = new TwitchApi();
+    const twitch = new TwitchApi(username);
     await twitch.isReady();
 
-    const twitchUser = await twitch.findUser(username);
-
-    if (!twitchUser)
+    if (!twitch.user)
       return interaction.reply({
         content: "Could not find the twitch user",
         ephemeral: true,
       });
 
-    const supabaseSubscription = await getSubscription({
-      user_id: twitchUser.id,
-      channel_id: interaction.channelId,
-    });
+    const supabaseSubscription = await twitch.getSubscription(
+      interaction.channelId,
+    );
 
     if (supabaseSubscription)
       return interaction.reply({
-        content: `You are already subscribed to ${twitchUser.display_name} on this channel!`,
+        content: `You are already subscribed to ${twitch.user.display_name} on this channel!`,
         ephemeral: true,
       });
 
-    await createSubscription(
-      {
-        server_id: interaction.guildId,
-        user_id: twitchUser.id,
-        role_id: role?.id,
-        channel_id: interaction.channelId,
-      },
-      twitch,
-    );
+    await twitch.createSubscription({
+      server_id: interaction.guildId,
+      role_id: role?.id,
+      channel_id: interaction.channelId,
+    });
 
     await interaction.reply({
-      content: `Subscribed to ${twitchUser.display_name} on Twitch! ${
+      content: `Subscribed to ${twitch.user.display_name} on Twitch! ${
         role ? roleMention(role.id) : "Members"
       } will now receive announcements when they go live in the ${channelMention(
         interaction.channelId,
       )} channel.`,
       embeds: [
         {
-          title: twitchUser.display_name,
-          url: `https://twitch.tv/${twitchUser.login}`,
-          description: twitchUser.description,
+          title: twitch.user.display_name,
+          url: `https://twitch.tv/${twitch.user.login}`,
+          description: twitch.user.description,
           image: {
-            url: twitchUser.profile_image_url,
+            url: twitch.user.profile_image_url,
           },
         },
       ],
