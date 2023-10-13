@@ -4,8 +4,8 @@ import {
   userMention,
 } from "discord.js";
 import { logtail } from "@utils/logtail";
-import { createBirthdaySubscription, getBirthdaySubscription } from "../api";
 import { confirmChannelAccess } from "@utils";
+import { BirthdayApi } from "@apis/birthday";
 
 export const subscribe = async (
   interaction: ChatInputCommandInteraction,
@@ -26,29 +26,22 @@ export const subscribe = async (
     day: "numeric",
     year: year ? "numeric" : undefined,
   }).format(date);
-  const channelId = interaction.channelId;
-  const userId = interaction.user.id;
 
   try {
     const hasAccess = await confirmChannelAccess(interaction);
     if (!hasAccess) return;
-    const subscription = await getBirthdaySubscription({
-      userId,
-      channelId,
-    });
+    const birthday = new BirthdayApi(interaction);
+    const subscription = await birthday.getSubscription();
 
     if (subscription) {
       return await interaction.reply({
         content: `${channelMention(
-          channelId,
+          interaction.channelId,
         )} is already subscribed to your birthday.`,
         ephemeral: true,
       });
     } else {
-      await createBirthdaySubscription({
-        userId,
-        guildId,
-        channelId,
+      await birthday.createSubscription({
         birthday: date.toISOString(),
         hasYear: !!year,
       });
@@ -56,7 +49,7 @@ export const subscribe = async (
 
     await interaction.reply(
       `Subscribed to ${userMention(
-        userId,
+        interaction.user.id,
       )}'s birthday on ${formattedDate}! The server will now receive announcements their birthday in the ${channelMention(
         interaction.channelId,
       )} channel.`,

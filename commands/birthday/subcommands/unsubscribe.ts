@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, userMention } from "discord.js";
 import { logtail } from "@utils/logtail";
-
-import { deleteBirthdaySubscription, getBirthdaySubscription } from "../api";
+import { BirthdayApi } from "@apis/birthday";
 
 export const unsubscribe = async (
   interaction: ChatInputCommandInteraction,
@@ -14,13 +13,8 @@ export const unsubscribe = async (
     });
 
   try {
-    const channelId = interaction.channelId;
-    const userId = interaction.user.id;
-
-    const subscription = await getBirthdaySubscription({
-      userId,
-      channelId,
-    });
+    const birthday = new BirthdayApi(interaction);
+    const subscription = await birthday.getSubscription();
 
     if (!subscription)
       return interaction.reply({
@@ -28,10 +22,10 @@ export const unsubscribe = async (
         ephemeral: true,
       });
 
-    await deleteBirthdaySubscription(subscription.id);
+    await birthday.deleteSubscription(subscription.id);
     await interaction.reply(
       `Unsubscribed to birthday announcements for ${userMention(
-        userId,
+        interaction.user.id,
       )} on this channel.`,
     );
   } catch (error) {

@@ -15,8 +15,8 @@ export const ready: Event<"ready"> = {
     client.user.setPresence({
       activities: [
         {
-          type: ActivityType.Streaming,
-          name: "v1.5.0",
+          type: ActivityType.Custom,
+          name: "v1.5.1 | /help",
         },
       ],
     });

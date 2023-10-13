@@ -8,12 +8,12 @@ import { Database } from "../../supabase/functions/_shared/supabase.types";
 import addHours from "date-fns/addHours";
 import getMonth from "date-fns/getMonth";
 import getDate from "date-fns/getDate";
-import { getActiveUsersSubscriptions } from "./api";
+import { BirthdayApi } from "@apis/birthday";
 
 type User = Database["public"]["Tables"]["birthdays"]["Row"];
 
 const getUsersWithAnniversaries = async (guild: Guild): Promise<User[]> => {
-  const subscriptions = await getActiveUsersSubscriptions(guild);
+  const subscriptions = await BirthdayApi.getActiveSubscriptions(guild);
 
   const currentMonth = getMonth(new Date());
   const currentDate = getDate(new Date());

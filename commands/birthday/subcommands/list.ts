@@ -3,7 +3,7 @@ import {
   ChatInputCommandInteraction,
   userMention,
 } from "discord.js";
-import { getActiveUsersSubscriptions } from "../api";
+import { BirthdayApi } from "@apis/birthday";
 
 export const list = async (
   interaction: ChatInputCommandInteraction,
@@ -11,7 +11,7 @@ export const list = async (
   if (!interaction.guildId || !interaction.guild) return;
 
   const guild = await interaction.guild.fetch();
-  const subscriptions = await getActiveUsersSubscriptions(guild);
+  const subscriptions = await BirthdayApi.getActiveSubscriptions(guild);
 
   if (subscriptions.length === 0)
     return interaction.reply({
