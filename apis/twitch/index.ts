@@ -210,7 +210,7 @@ export class TwitchApi {
     if (error) throw new Error(error.message);
   }
 
-  async removeSubscription() {
+  async deleteSubscription() {
     if (!this.user) throw new Error("User not found");
     const { error } = await supabase
       .from("twitch_subscriptions")
@@ -229,10 +229,10 @@ export class TwitchApi {
 
     const twitchSubscription = await this.getTwitchSubscription();
     if (!twitchSubscription) return;
-    await this.deleteSubscription(twitchSubscription.id);
+    await this.deleteTwitchSubscription(twitchSubscription.id);
   }
 
-  private async deleteSubscription(subscriptionId: string) {
+  private async deleteTwitchSubscription(subscriptionId: string) {
     try {
       await this.axios.delete("/eventsub/subscriptions", {
         params: {

@@ -25,7 +25,7 @@ export const unsubscribe = async (
         ephemeral: true,
       });
 
-    await twitch.removeSubscription();
+    await twitch.deleteSubscription();
     await interaction.reply({
       content: `${channelMention(
         interaction.channelId,
