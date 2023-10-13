@@ -17,19 +17,22 @@ export const subscribe = async (
       ephemeral: true,
     });
 
-  const month = interaction.options.getString("month", true);
-  const day = interaction.options.getNumber("day", true);
-  const year = interaction.options.getNumber("year");
-  const date = new Date(`${month} ${day} ${year || new Date().getFullYear()}`);
-  const formattedDate = new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: year ? "numeric" : undefined,
-  }).format(date);
-
   try {
     const hasAccess = await confirmChannelAccess(interaction);
     if (!hasAccess) return;
+
+    const month = interaction.options.getString("month", true);
+    const day = interaction.options.getNumber("day", true);
+    const year = interaction.options.getNumber("year");
+    const date = new Date(
+      `${month} ${day} ${year || new Date().getFullYear()}`,
+    );
+    const formattedDate = new Intl.DateTimeFormat("en-US", {
+      month: "long",
+      day: "numeric",
+      year: year ? "numeric" : undefined,
+    }).format(date);
+
     const birthday = new BirthdayApi(interaction);
     const subscription = await birthday.getSubscription();
 

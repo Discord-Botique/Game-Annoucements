@@ -18,29 +18,31 @@ export const subscribe = async (
       ephemeral: true,
     });
 
-  const idOrUrl = interaction.options.getString("id-or-url", true);
-  const role = interaction.options.getRole("role-mention");
-
-  const gameId = parseGameId(idOrUrl);
-
-  if (!gameId)
-    return interaction.reply({
-      content: `Could not parse the game ID from ${idOrUrl}.`,
-      ephemeral: true,
-    });
-
-  const steam = new SteamApi(gameId);
-  const gameName = (await steam.getGameDetails())?.name;
-  if (!gameName)
-    return interaction.reply({
-      content: `Could not find a game with ID ${gameId} on Steam.`,
-      ephemeral: true,
-    });
-
   try {
-    const channelId = interaction.channelId;
     const hasAccess = await confirmChannelAccess(interaction);
     if (!hasAccess) return;
+
+    const idOrUrl = interaction.options.getString("id-or-url", true);
+    const role = interaction.options.getRole("role-mention");
+
+    const gameId = parseGameId(idOrUrl);
+
+    if (!gameId)
+      return interaction.reply({
+        content: `Could not parse the game ID from ${idOrUrl}.`,
+        ephemeral: true,
+      });
+
+    const steam = new SteamApi(gameId);
+    const gameName = (await steam.getGameDetails())?.name;
+    if (!gameName)
+      return interaction.reply({
+        content: `Could not find a game with ID ${gameId} on Steam.`,
+        ephemeral: true,
+      });
+
+    const channelId = interaction.channelId;
+
     const subscription = await steam.getSubscription({
       channelId,
     });

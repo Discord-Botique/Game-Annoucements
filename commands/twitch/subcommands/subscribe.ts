@@ -5,6 +5,7 @@ import {
 } from "discord.js";
 import { logtail } from "@utils/logtail";
 import { TwitchApi } from "@apis/twitch";
+import { confirmChannelAccess } from "@utils";
 
 export const subscribe = async (
   interaction: ChatInputCommandInteraction,
@@ -14,6 +15,9 @@ export const subscribe = async (
   const role = interaction.options.getRole("role-mention");
 
   try {
+    const hasAccess = await confirmChannelAccess(interaction);
+    if (!hasAccess) return;
+
     const twitch = new TwitchApi(interaction);
     await twitch.isReady();
 
