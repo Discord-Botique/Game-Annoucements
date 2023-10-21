@@ -70,7 +70,7 @@ export class TwitchApi {
   }
 
   // https://dev.twitch.tv/docs/api/reference/#get-streams
-  static async getStreams(userId: string): Promise<TwitchStream | undefined> {
+  static async getStream(userId: string): Promise<TwitchStream | undefined> {
     try {
       const api = await TwitchApi.authorize();
       const response = await api.get<StreamResponse>("/streams", {
