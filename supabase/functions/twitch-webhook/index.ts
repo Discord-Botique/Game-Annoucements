@@ -1,5 +1,7 @@
 import { createClient } from "supabase";
 import type { Database } from "../_shared/supabase.types.ts";
+import { TwitchApi } from "../../../apis/twitch/index.ts";
+import { TwitchStream } from "../../../apis/twitch/types.ts";
 
 interface Body {
   subscription: {
@@ -15,8 +17,6 @@ interface Body {
 }
 
 Deno.serve(async (req) => {
-  console.log(req);
-
   // @todo - verify the event - https://dev.twitch.tv/docs/eventsub/handling-webhook-events/#verifying-the-event-message
   if (
     req.headers.get("twitch-eventsub-message-type") ===
@@ -38,7 +38,6 @@ Deno.serve(async (req) => {
     });
   }
 
-  console.log("Creating supabase client", sbURL, sbKey);
   const supabase = createClient<Database>(sbURL, sbKey, {
     auth: { persistSession: false },
   });
@@ -51,15 +50,17 @@ Deno.serve(async (req) => {
     });
   }
 
-  console.log(body);
+  const livestream = (await TwitchApi.getStream(
+    // body.event.broadcaster_user_id,
+    "133220545",
+  )) as TwitchStream | undefined;
+
   const subscriptions = await supabase
     .from("twitch_subscriptions")
     .select()
     .match({
       user_id: body.event.broadcaster_user_id,
     });
-
-  console.log(subscriptions);
 
   subscriptions.data?.map(async (subscription) => {
     const res = await fetch(
@@ -73,11 +74,20 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           content: `${
             subscription.role_id ? `<@&${subscription.role_id}> ` : ""
-          }${
-            body.event.broadcaster_user_name
-          } is now live on Twitch! https://twitch.tv/${
-            body.event.broadcaster_user_login
-          }`,
+          }${body.event.broadcaster_user_name} is now live on Twitch!`,
+          embeds: livestream
+            ? [
+                {
+                  title: livestream.title,
+                  url: `https://twitch.tv/${body.event.broadcaster_user_login}`,
+                  description: livestream.game_name,
+                  image: {
+                    url: livestream.thumbnail_url,
+                  },
+                  timestamp: new Date(livestream.started_at).toISOString(),
+                },
+              ]
+            : undefined,
         }),
       },
     );

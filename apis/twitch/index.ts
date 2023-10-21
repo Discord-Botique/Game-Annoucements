@@ -1,10 +1,12 @@
-import { create, AxiosInstance } from "axios";
+import axios, { create, AxiosInstance } from "axios";
 import { logtail } from "@utils/logtail";
 import {
   OauthResponse,
   TwitchUser,
   TwitchSubscription,
   TwitchSubscriptionResponse,
+  StreamResponse,
+  TwitchStream,
 } from "./types";
 import { supabase } from "@utils/supabase";
 import { ChatInputCommandInteraction } from "discord.js";
@@ -17,16 +19,9 @@ export class TwitchApi {
 
   constructor(interaction: ChatInputCommandInteraction) {
     this.interaction = interaction;
-    this.authorize()
-      .then(async (data) => {
-        this.axios = create({
-          baseURL: "https://api.twitch.tv/helix",
-          headers: {
-            Authorization: `Bearer ${data.access_token}`,
-            "Client-Id": process.env.TWITCH_CLIENT_ID,
-          },
-        });
-
+    TwitchApi.authorize()
+      .then(async (axiosInstance) => {
+        this.axios = axiosInstance;
         const username = interaction.options.getString("username");
         if (username) this.user = await this.findUser(username);
         this.ready = true;
@@ -39,8 +34,8 @@ export class TwitchApi {
   }
 
   // https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#client-credentials-grant-flow
-  private async authorize(): Promise<OauthResponse> {
-    const response = await this.axios.post<OauthResponse>(
+  static async authorize(): Promise<AxiosInstance> {
+    const response = await axios.post<OauthResponse>(
       "https://id.twitch.tv/oauth2/token",
       undefined,
       {
@@ -52,7 +47,13 @@ export class TwitchApi {
       },
     );
 
-    return response.data;
+    return create({
+      baseURL: "https://api.twitch.tv/helix",
+      headers: {
+        Authorization: `Bearer ${response.data.access_token}`,
+        "Client-Id": process.env.TWITCH_CLIENT_ID,
+      },
+    });
   }
 
   async isReady(): Promise<boolean> {
@@ -66,6 +67,26 @@ export class TwitchApi {
       };
       check();
     });
+  }
+
+  // https://dev.twitch.tv/docs/api/reference/#get-streams
+  static async getStreams(userId: string): Promise<TwitchStream | undefined> {
+    try {
+      const api = await TwitchApi.authorize();
+      const response = await api.get<StreamResponse>("/streams", {
+        params: {
+          user_id: userId,
+          type: "live",
+        },
+      });
+
+      return response.data.data[0];
+    } catch (e) {
+      await logtail.error(`Error finding Twitch stream for user ${userId}`, {
+        error: String(e),
+      });
+      return undefined;
+    }
   }
 
   // https://dev.twitch.tv/docs/api/reference/#get-users

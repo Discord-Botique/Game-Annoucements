@@ -16,7 +16,7 @@ export const ready: Event<"ready"> = {
       activities: [
         {
           type: ActivityType.Custom,
-          name: "v1.5.2 | /help",
+          name: "v1.5.3 | /help",
         },
       ],
     });
