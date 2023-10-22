@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
 
     const subscriptions = await getSubscriptions(stream.user_id);
     subscriptions.map(async (subscription) => {
-      const res = await fetch(
+      await fetch(
         `https://discord.com/api/v10/channels/${subscription.channel_id}/messages`,
         {
           method: "POST",
