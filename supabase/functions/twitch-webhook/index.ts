@@ -1,6 +1,6 @@
-import { createClient } from "supabase";
-import type { Database } from "../_shared/supabase.types.ts";
-import { StreamResponse, OauthResponse } from "../../../apis/twitch/types.ts";
+import { getLiveStream } from "./twitchApi.ts";
+import { getSubscriptions } from "./supabaseApi.ts";
+import { Logtail } from "logtail";
 
 interface Body {
   subscription: {
@@ -15,6 +15,8 @@ interface Body {
   };
 }
 
+export const logtail = new Logtail(Deno.env.get("LOGTAIL_KEY") || "");
+
 Deno.serve(async (req) => {
   // @todo - verify the event - https://dev.twitch.tv/docs/eventsub/handling-webhook-events/#verifying-the-event-message
   if (
@@ -27,20 +29,6 @@ Deno.serve(async (req) => {
     });
   }
 
-  const sbURL = Deno.env.get("SUPABASE_URL");
-  const sbKey = Deno.env.get("SUPABASE_ANON_KEY");
-
-  if (!sbURL || !sbKey) {
-    return new Response("Missing secrets", {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  const supabase = createClient<Database>(sbURL, sbKey, {
-    auth: { persistSession: false },
-  });
-
   const body = (await req.json()) as Body;
 
   if (body.subscription.type !== "stream.online") {
@@ -49,84 +37,71 @@ Deno.serve(async (req) => {
     });
   }
 
-  const authParams = new URLSearchParams({
-    client_id: Deno.env.get("TWITCH_CLIENT_ID") || "",
-    client_secret: Deno.env.get("TWITCH_CLIENT_SECRET") || "",
-    grant_type: "client_credentials",
-  });
+  try {
+    const stream = await getLiveStream(body.event.broadcaster_user_id);
 
-  const twitchAuth = await fetch(
-    `https://id.twitch.tv/oauth2/token?${authParams}`,
-    {
-      method: "POST",
-    },
-  );
-  const { access_token } = (await twitchAuth.json()) as OauthResponse;
+    if (!stream) {
+      const error = JSON.stringify({
+        error: "No stream found.",
+        req,
+        body,
+      });
+      await logtail.error("No stream found.", {
+        error,
+      });
+      return new Response(error, {
+        headers: { "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
 
-  const streamParams = new URLSearchParams({
-    user_id: body.event.broadcaster_user_id,
-    type: "live",
-  });
+    const subscriptions = await getSubscriptions(stream.user_id);
+    subscriptions.map(async (subscription) => {
+      const res = await fetch(
+        `https://discord.com/api/v10/channels/${subscription.channel_id}/messages`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bot ${Deno.env.get("TOKEN")}`,
+            "Content-Type": "application/json; charset=UTF-8",
+          },
+          body: JSON.stringify({
+            content: `${
+              subscription.role_id ? `<@&${subscription.role_id}> ` : ""
+            }${stream.user_name} is now live on Twitch!`,
+            embeds: [
+              {
+                title: stream.title,
+                url: `https://twitch.tv/${body.event.broadcaster_user_login}`,
+                description: stream.game_name,
+                image: {
+                  url: stream.thumbnail_url.replace("-{width}x{height}", ""),
+                },
+                timestamp: new Date(stream.started_at).toISOString(),
+              },
+            ],
+          }),
+        },
+      );
+    });
 
-  const streams = await fetch(
-    `https://api.twitch.tv/helix/streams?${streamParams}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        "Client-Id": Deno.env.get("TWITCH_CLIENT_ID") || "",
-      },
-    },
-  );
-  const streamsResponse = (await streams.json()) as StreamResponse | undefined;
-  const stream = streamsResponse?.data[0];
-
-  if (!stream) {
-    console.error("No stream found.");
     return new Response(JSON.stringify({}), {
       headers: { "Content-Type": "application/json" },
-      status: 400,
+    });
+  } catch (e) {
+    const error = JSON.stringify({
+      error: "An error occured.",
+      e,
+      req,
+      body,
+    });
+
+    await logtail.error("An error occured.", {
+      error,
+    });
+    return new Response(error, {
+      headers: { "Content-Type": "application/json" },
+      status: 500,
     });
   }
-  const subscriptions = await supabase
-    .from("twitch_subscriptions")
-    .select()
-    .match({
-      user_id: stream.user_id,
-    });
-
-  subscriptions.data?.map(async (subscription) => {
-    const res = await fetch(
-      `https://discord.com/api/v10/channels/${subscription.channel_id}/messages`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bot ${Deno.env.get("TOKEN")}`,
-          "Content-Type": "application/json; charset=UTF-8",
-        },
-        body: JSON.stringify({
-          content: `${
-            subscription.role_id ? `<@&${subscription.role_id}> ` : ""
-          }${stream.user_name} is now live on Twitch!`,
-          embeds: [
-            {
-              title: stream.title,
-              url: `https://twitch.tv/${body.event.broadcaster_user_login}`,
-              description: stream.game_name,
-              image: {
-                url: stream.thumbnail_url.replace("-{width}x{height}", ""),
-              },
-              timestamp: new Date(stream.started_at).toISOString(),
-            },
-          ],
-        }),
-      },
-    );
-
-    console.info(res);
-  });
-
-  return new Response(JSON.stringify({}), {
-    headers: { "Content-Type": "application/json" },
-  });
 });
