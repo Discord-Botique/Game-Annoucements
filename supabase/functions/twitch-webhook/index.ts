@@ -1,7 +1,6 @@
 import { createClient } from "supabase";
 import type { Database } from "../_shared/supabase.types.ts";
-import { TwitchApi } from "../../../apis/twitch/index.ts";
-import { TwitchStream } from "../../../apis/twitch/types.ts";
+import { StreamResponse, OauthResponse } from "../../../apis/twitch/types.ts";
 
 interface Body {
   subscription: {
@@ -50,16 +49,50 @@ Deno.serve(async (req) => {
     });
   }
 
-  const livestream = (await TwitchApi.getStream(
-    // body.event.broadcaster_user_id,
-    "133220545",
-  )) as TwitchStream | undefined;
+  const authParams = new URLSearchParams({
+    client_id: Deno.env.get("TWITCH_CLIENT_ID") || "",
+    client_secret: Deno.env.get("TWITCH_CLIENT_SECRET") || "",
+    grant_type: "client_credentials",
+  });
 
+  const twitchAuth = await fetch(
+    `https://id.twitch.tv/oauth2/token?${authParams}`,
+    {
+      method: "POST",
+    },
+  );
+  const { access_token } = (await twitchAuth.json()) as OauthResponse;
+
+  const streamParams = new URLSearchParams({
+    user_id: body.event.broadcaster_user_id,
+    type: "live",
+  });
+
+  const streams = await fetch(
+    `https://api.twitch.tv/helix/streams?${streamParams}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Client-Id": Deno.env.get("TWITCH_CLIENT_ID") || "",
+      },
+    },
+  );
+  const streamsResponse = (await streams.json()) as StreamResponse | undefined;
+  const stream = streamsResponse?.data[0];
+
+  if (!stream) {
+    console.error("No stream found.");
+    return new Response(JSON.stringify({}), {
+      headers: { "Content-Type": "application/json" },
+      status: 400,
+    });
+  }
   const subscriptions = await supabase
     .from("twitch_subscriptions")
     .select()
     .match({
-      user_id: body.event.broadcaster_user_id,
+      user_id: stream.user_id,
     });
 
   subscriptions.data?.map(async (subscription) => {
@@ -74,20 +107,18 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           content: `${
             subscription.role_id ? `<@&${subscription.role_id}> ` : ""
-          }${body.event.broadcaster_user_name} is now live on Twitch!`,
-          embeds: livestream
-            ? [
-                {
-                  title: livestream.title,
-                  url: `https://twitch.tv/${body.event.broadcaster_user_login}`,
-                  description: livestream.game_name,
-                  image: {
-                    url: livestream.thumbnail_url,
-                  },
-                  timestamp: new Date(livestream.started_at).toISOString(),
-                },
-              ]
-            : undefined,
+          }${stream.user_name} is now live on Twitch!`,
+          embeds: [
+            {
+              title: stream.title,
+              url: `https://twitch.tv/${body.event.broadcaster_user_login}`,
+              description: stream.game_name,
+              image: {
+                url: stream.thumbnail_url.replace("-{width}x{height}", ""),
+              },
+              timestamp: new Date(stream.started_at).toISOString(),
+            },
+          ],
         }),
       },
     );

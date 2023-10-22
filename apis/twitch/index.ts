@@ -5,8 +5,6 @@ import {
   TwitchUser,
   TwitchSubscription,
   TwitchSubscriptionResponse,
-  StreamResponse,
-  TwitchStream,
 } from "./types";
 import { supabase } from "@utils/supabase";
 import { ChatInputCommandInteraction } from "discord.js";
@@ -67,26 +65,6 @@ export class TwitchApi {
       };
       check();
     });
-  }
-
-  // https://dev.twitch.tv/docs/api/reference/#get-streams
-  static async getStream(userId: string): Promise<TwitchStream | undefined> {
-    try {
-      const api = await TwitchApi.authorize();
-      const response = await api.get<StreamResponse>("/streams", {
-        params: {
-          user_id: userId,
-          type: "live",
-        },
-      });
-
-      return response.data.data[0];
-    } catch (e) {
-      await logtail.error(`Error finding Twitch stream for user ${userId}`, {
-        error: String(e),
-      });
-      return undefined;
-    }
   }
 
   // https://dev.twitch.tv/docs/api/reference/#get-users
