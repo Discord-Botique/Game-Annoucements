@@ -25,7 +25,7 @@ export class SteamApi {
 
       return gameInfo.data.appnews.newsitems?.[0];
     } catch (e) {
-      await logtail.error(`Error fetching game news for ID ${this.gameId}`, {
+      await logtail.warn(`Error fetching game news for ID ${this.gameId}`, {
         error: String(e),
       });
       return undefined;
