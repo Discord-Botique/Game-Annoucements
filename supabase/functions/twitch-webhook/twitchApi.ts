@@ -1,4 +1,8 @@
-import { OauthResponse, StreamResponse } from "../../../apis/twitch/types.ts";
+import {
+  OauthResponse,
+  StreamResponse,
+  TwitchUser,
+} from "../../../apis/twitch/types.ts";
 
 const getAccessToken = async () => {
   const authParams = new URLSearchParams({
@@ -37,5 +41,28 @@ export const getLiveStream = async (user_id: string) => {
     },
   );
   const streamsResponse = (await streams.json()) as StreamResponse | undefined;
+
   return streamsResponse?.data[0];
+};
+
+export const findTwitchUser = async (id: string) => {
+  const accessToken = await getAccessToken();
+
+  const users = await fetch(`https://api.twitch.tv/helix/users?id=${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Client-Id": Deno.env.get("TWITCH_CLIENT_ID") || "",
+    },
+  });
+
+  const response = (await users.json()) as
+    | {
+        data: TwitchUser[];
+      }
+    | undefined;
+
+  if (!response?.data.length) return undefined;
+
+  return response.data[0];
 };

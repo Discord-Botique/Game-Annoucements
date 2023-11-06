@@ -1,4 +1,4 @@
-import { getLiveStream } from "./twitchApi.ts";
+import { getLiveStream, findTwitchUser } from "./twitchApi.ts";
 import { getSubscriptions } from "./supabaseApi.ts";
 import { Logtail } from "logtail";
 
@@ -15,7 +15,7 @@ interface Body {
   };
 }
 
-export const logtail = new Logtail(Deno.env.get("LOGTAIL_KEY") || "");
+const logtail = new Logtail(Deno.env.get("LOGTAIL_KEY") || "");
 
 Deno.serve(async (req) => {
   // @todo - verify the event - https://dev.twitch.tv/docs/eventsub/handling-webhook-events/#verifying-the-event-message
@@ -37,25 +37,47 @@ Deno.serve(async (req) => {
     });
   }
 
+  let title = "";
+  let description = "";
+  let url = "";
+  let timestamp = "";
+
   try {
     const stream = await getLiveStream(body.event.broadcaster_user_id);
 
     if (!stream) {
-      const error = JSON.stringify({
-        error: "No stream found.",
-        req,
-        body,
-      });
-      await logtail.error("No stream found.", {
-        error,
-      });
-      return new Response(error, {
-        headers: { "Content-Type": "application/json" },
-        status: 400,
-      });
+      const user = await findTwitchUser(body.event.broadcaster_user_id);
+
+      if (!user) {
+        const error = JSON.stringify({
+          error: "No stream or user found.",
+          req,
+        });
+
+        await logtail.error("No stream or user found.", {
+          error,
+        });
+
+        return new Response(error, {
+          headers: { "Content-Type": "application/json" },
+          status: 400,
+        });
+      } else {
+        title = user.display_name;
+        description = user.description;
+        url = user.profile_image_url;
+        timestamp = new Date().toISOString();
+      }
+    } else {
+      title = stream.title;
+      description = stream.game_name;
+      url = stream.thumbnail_url.replace("-{width}x{height}", "");
+      timestamp = new Date(stream.started_at).toISOString();
     }
 
-    const subscriptions = await getSubscriptions(stream.user_id);
+    const subscriptions = await getSubscriptions(
+      body.event.broadcaster_user_id,
+    );
     subscriptions.map(async (subscription) => {
       await fetch(
         `https://discord.com/api/v10/channels/${subscription.channel_id}/messages`,
@@ -68,16 +90,14 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             content: `${
               subscription.role_id ? `<@&${subscription.role_id}> ` : ""
-            }${stream.user_name} is now live on Twitch!`,
+            }${body.event.broadcaster_user_name} is now live on Twitch!`,
             embeds: [
               {
-                title: stream.title,
+                title,
                 url: `https://twitch.tv/${body.event.broadcaster_user_login}`,
-                description: stream.game_name,
-                image: {
-                  url: stream.thumbnail_url.replace("-{width}x{height}", ""),
-                },
-                timestamp: new Date(stream.started_at).toISOString(),
+                description,
+                image: { url },
+                timestamp,
               },
             ],
           }),
