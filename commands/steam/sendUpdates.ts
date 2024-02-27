@@ -1,16 +1,18 @@
-import differenceInMilliseconds from "date-fns/differenceInMilliseconds";
-import endOfHour from "date-fns/endOfHour";
-import { Client, MessageCreateOptions, roleMention } from "discord.js";
+import { differenceInMilliseconds } from "date-fns/differenceInMilliseconds";
+import { endOfHour } from "date-fns/endOfHour";
+import { Client, Guild, MessageCreateOptions } from "discord.js";
 import { logtail } from "@utils/logtail";
 import type { NewsItem } from "@apis/steam/types";
 import { getGameData } from "./utils";
 import { supabase } from "@utils/supabase";
 import { SteamApi } from "@apis/steam";
+import { mentionRole } from "@utils";
 
 const messageOptions = (
   newsItem: NewsItem,
   name: string,
   roleId: string | null,
+  guild: Guild,
 ): MessageCreateOptions => {
   const content = newsItem.contents.replace(
     "{STEAM_CLAN_IMAGE}",
@@ -23,7 +25,7 @@ const messageOptions = (
 
   return {
     content: `${
-      roleId ? `${roleMention(roleId)} ` : ""
+      roleId ? `${mentionRole(roleId, guild)} ` : ""
     }A new community announcement for ${name} has been published!`,
     embeds: [
       {
@@ -61,59 +63,62 @@ const triggerMessages = async (client: Client<true>) => {
 
       const subscriptions = await SteamApi.getSubscriptions(guild.id);
 
-      subscriptions?.map(async (subscription) => {
-        try {
-          const channel = await guild.channels
-            .fetch(subscription.channel_id)
-            .catch(async (err) => {
-              await logtail.info("Error fetching channel", {
-                error: String(err),
-                guildId: subscription.server_id,
-                channelId: subscription.channel_id,
+      await Promise.all(
+        (subscriptions ?? []).map(async (subscription) => {
+          try {
+            const channel = await guild.channels
+              .fetch(subscription.channel_id)
+              .catch(async (err) => {
+                await logtail.info("Error fetching channel", {
+                  error: String(err),
+                  guildId: subscription.server_id,
+                  channelId: subscription.channel_id,
+                });
+                return null;
               });
-              return null;
+
+            if (!channel?.isTextBased()) return null;
+            const { newsItem, pushNewsItem } = await getNewsItem(
+              subscription.game_id,
+            );
+
+            if (!newsItem || !subscription.steam_games) return null;
+            if (pushNewsItem) fetchedNewsItems.push(newsItem);
+            if (newsItem.feedlabel !== "Community Announcements") return null;
+
+            const gameData = getGameData(subscription.steam_games);
+
+            // check if the news item is the same as the last one we sent
+            if (newsItem.gid === gameData.last_announcement_id) return null;
+
+            await logtail.debug("Sending announcement message", {
+              item: JSON.stringify(newsItem),
             });
 
-          if (!channel?.isTextBased()) return null;
-          const { newsItem, pushNewsItem } = await getNewsItem(
-            subscription.game_id,
-          );
-
-          if (!newsItem || !subscription.steam_games) return null;
-          if (pushNewsItem) fetchedNewsItems.push(newsItem);
-          if (newsItem.feedlabel !== "Community Announcements") return null;
-
-          const gameData = getGameData(subscription.steam_games);
-
-          // check if the news item is the same as the last one we sent
-          if (newsItem.gid === gameData.last_announcement_id) return null;
-
-          await logtail.debug("Sending announcement message", {
-            item: JSON.stringify(newsItem),
-          });
-
-          const message = messageOptions(
-            newsItem,
-            gameData.name,
-            subscription.role_id,
-          );
-          await channel.send(message).catch(() => {
-            throw new Error(JSON.stringify(message));
-          });
-          await supabase.from("steam_games").upsert([
-            {
-              id: subscription.game_id,
-              name: gameData.name,
-              last_announcement_id: newsItem.gid,
-              updated_at: new Date().toISOString(),
-            },
-          ]);
-        } catch (e) {
-          await logtail.error("Error sending message", {
-            error: String(e),
-          });
-        }
-      });
+            const message = messageOptions(
+              newsItem,
+              gameData.name,
+              subscription.role_id,
+              guild,
+            );
+            await channel.send(message).catch(() => {
+              throw new Error(JSON.stringify(message));
+            });
+            await supabase.from("steam_games").upsert([
+              {
+                id: subscription.game_id,
+                name: gameData.name,
+                last_announcement_id: newsItem.gid,
+                updated_at: new Date().toISOString(),
+              },
+            ]);
+          } catch (e) {
+            await logtail.error("Error sending message", {
+              error: String(e),
+            });
+          }
+        }),
+      );
     }),
   );
 

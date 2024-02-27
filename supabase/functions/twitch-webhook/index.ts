@@ -78,6 +78,11 @@ Deno.serve(async (req) => {
     const subscriptions = await getSubscriptions(
       body.event.broadcaster_user_id,
     );
+
+    const mentionRole = (roldId: string, serverId: string) => {
+      return roldId === serverId ? "@everyone" : `<@&${roldId}>`;
+    };
+
     subscriptions.map(async (subscription) => {
       await fetch(
         `https://discord.com/api/v10/channels/${subscription.channel_id}/messages`,
@@ -89,8 +94,11 @@ Deno.serve(async (req) => {
           },
           body: JSON.stringify({
             content: `${
-              subscription.role_id ? `<@&${subscription.role_id}> ` : ""
+              subscription.role_id
+                ? `${mentionRole(subscription.role_id, subscription.server_id)} `
+                : ""
             }${body.event.broadcaster_user_name} is now live on Twitch!`,
+            allowedMentions: { parse: ["everyone", "roles"] },
             embeds: [
               {
                 title,

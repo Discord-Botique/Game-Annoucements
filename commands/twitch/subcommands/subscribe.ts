@@ -1,11 +1,7 @@
-import {
-  channelMention,
-  ChatInputCommandInteraction,
-  roleMention,
-} from "discord.js";
+import { channelMention, ChatInputCommandInteraction } from "discord.js";
 import { logtail } from "@utils/logtail";
 import { TwitchApi } from "@apis/twitch";
-import { confirmChannelAccess } from "@utils";
+import { confirmChannelAccess, mentionRole } from "@utils";
 
 export const subscribe = async (
   interaction: ChatInputCommandInteraction,
@@ -39,7 +35,7 @@ export const subscribe = async (
 
     await interaction.reply({
       content: `Subscribed to ${twitch.user.display_name} on Twitch! ${
-        role ? roleMention(role.id) : "Members"
+        role ? mentionRole(role.id, interaction.guild) : "Members"
       } will now receive announcements when they go live in the ${channelMention(
         interaction.channelId,
       )} channel.`,

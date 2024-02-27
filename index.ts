@@ -5,6 +5,9 @@ import { logtail } from "@utils/logtail";
 import { interactionCreate } from "@events/interactionCreate";
 
 const client = new Client({
+  allowedMentions: {
+    parse: ["everyone", "roles", "users"],
+  },
   // https://discord.com/developers/docs/topics/gateway#list-of-intents
   intents: [],
   // https://discordjs.guide/popular-topics/partials.html#enabling-partials

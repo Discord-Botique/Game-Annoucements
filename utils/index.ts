@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Guild, roleMention } from "discord.js";
 
 export const confirmChannelAccess = async (
   interaction: ChatInputCommandInteraction,
@@ -20,4 +20,10 @@ export const confirmChannelAccess = async (
   } else {
     return true;
   }
+};
+
+export const mentionRole = (roleId: string, guild: Guild | null) => {
+  const everyoneId = guild?.roles.everyone.id;
+
+  return roleId === everyoneId ? "@everyone" : roleMention(roleId);
 };

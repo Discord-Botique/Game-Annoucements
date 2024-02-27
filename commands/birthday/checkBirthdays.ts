@@ -1,13 +1,13 @@
 import { Client, Guild } from "discord.js";
-import differenceInMilliseconds from "date-fns/differenceInMilliseconds";
-import differenceInYears from "date-fns/differenceInYears";
-import startOfTomorrow from "date-fns/startOfTomorrow";
+import { differenceInMilliseconds } from "date-fns/differenceInMilliseconds";
+import { differenceInYears } from "date-fns/differenceInYears";
+import { startOfTomorrow } from "date-fns/startOfTomorrow";
 import { userMention } from "@discordjs/builders";
 import { logtail } from "@utils/logtail";
 import { Database } from "../../supabase/functions/_shared/supabase.types";
-import addHours from "date-fns/addHours";
-import getMonth from "date-fns/getMonth";
-import getDate from "date-fns/getDate";
+import { addHours } from "date-fns/addHours";
+import { getMonth } from "date-fns/getMonth";
+import { getDate } from "date-fns/getDate";
 import { BirthdayApi } from "@apis/birthday";
 
 type User = Database["public"]["Tables"]["birthdays"]["Row"];

@@ -1,11 +1,7 @@
-import {
-  channelMention,
-  ChatInputCommandInteraction,
-  roleMention,
-} from "discord.js";
+import { channelMention, ChatInputCommandInteraction } from "discord.js";
 import { logtail } from "@utils/logtail";
 import { parseGameId } from "../utils";
-import { confirmChannelAccess } from "@utils";
+import { confirmChannelAccess, mentionRole } from "@utils";
 import { SteamApi } from "@apis/steam";
 
 export const subscribe = async (
@@ -64,7 +60,7 @@ export const subscribe = async (
 
     await interaction.reply(
       `Subscribed to ${gameName}! ${
-        role ? roleMention(role.id) : "Members"
+        role ? mentionRole(role.id, interaction.guild) : "Members"
       } will now receive announcements for this game in the ${channelMention(
         interaction.channelId,
       )} channel.`,

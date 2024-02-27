@@ -1,9 +1,6 @@
-import {
-  channelMention,
-  ChatInputCommandInteraction,
-  roleMention,
-} from "discord.js";
+import { channelMention, ChatInputCommandInteraction } from "discord.js";
 import { TwitchApi } from "@apis/twitch";
+import { mentionRole } from "@utils";
 
 export const list = async (
   interaction: ChatInputCommandInteraction,
@@ -42,7 +39,9 @@ export const list = async (
     message += `• ${twitchUser?.display_name || "Unknown"} ${
       twitchUser ? ` (http://twitch.tv/${twitchUser.login})` : ""
     }${
-      subscription.role_id ? ` - ${roleMention(subscription.role_id)}` : ""
+      subscription.role_id
+        ? ` - ${mentionRole(subscription.role_id, interaction.guild)}`
+        : ""
     }\n`;
 
     if (index < subscriptions.length - 1) await updateMessage(index + 1);

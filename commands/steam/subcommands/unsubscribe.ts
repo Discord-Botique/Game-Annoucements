@@ -1,11 +1,8 @@
-import {
-  channelMention,
-  ChatInputCommandInteraction,
-  roleMention,
-} from "discord.js";
+import { channelMention, ChatInputCommandInteraction } from "discord.js";
 import { logtail } from "@utils/logtail";
 import { parseGameId } from "../utils";
 import { SteamApi } from "@apis/steam";
+import { mentionRole } from "@utils";
 
 export const unsubscribe = async (
   interaction: ChatInputCommandInteraction,
@@ -50,7 +47,9 @@ export const unsubscribe = async (
     await SteamApi.deleteSubscription(subscription.id);
     await interaction.reply(
       `Unsubscribed to ${gameName}! ${
-        subscription.role_id ? roleMention(subscription.role_id) : "Members"
+        subscription.role_id
+          ? mentionRole(subscription.role_id, interaction.guild)
+          : "Members"
       } will no longer receive announcements for this game in the ${channelMention(
         interaction.channelId,
       )} channel.`,
