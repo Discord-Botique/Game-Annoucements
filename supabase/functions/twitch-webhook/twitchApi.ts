@@ -2,7 +2,7 @@ import {
   OauthResponse,
   StreamResponse,
   TwitchUser,
-} from "../../../apis/twitch/types.ts";
+} from "functions/_shared/twitch.types";
 
 const getAccessToken = async () => {
   const authParams = new URLSearchParams({
