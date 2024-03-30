@@ -7,9 +7,11 @@
   "license": "MIT",
   "scripts": {
     "generate": "./generate-types.sh",
-    "start": "yarn deploy-commands && node --env-file=.env ./dist/index.js",
+    "start:local": "yarn deploy-commands:local && node --env-file=.env ./dist/index.js",
+    "start": "yarn deploy-commands && node ./dist/index.js",
     "watch": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
-    "deploy-commands": "node --env-file=.env ./dist/deploy-commands.js",
+    "deploy-commands:local": "node --env-file=.env ./dist/deploy-commands.js",
+    "deploy-commands": "node ./dist/deploy-commands.js",
     "build": "tsc && tsc-alias",
     "lint": "eslint --ext .ts,.json .",
     "lintfix": "eslint --ext .ts,.json . --fix",
