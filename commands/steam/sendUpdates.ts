@@ -101,8 +101,8 @@ const triggerMessages = async (client: Client<true>) => {
               subscription.role_id,
               guild,
             );
-            await channel.send(message).catch(() => {
-              throw new Error(JSON.stringify(message));
+            await channel.send(message).catch((error: unknown) => {
+              throw new Error(JSON.stringify({ message, error }));
             });
             await supabase.from("steam_games").upsert([
               {
