@@ -1,0 +1,28 @@
+name: Test Migrations
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  test_migrations:
+    runs-on: ubuntu-latest
+    env:
+      supabase_db_url: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aarcangeli/load-dotenv@v1.0.0
+        with:
+            path: ''
+            filenames: |
+              .env.example
+            quiet: false
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start DB
+        run: supabase db start
+      - name: Lint DB
+        run: supabase db lint --local
+      - name: Test Migrations
+        run: supabase db push --db-url "$supabase_db_url" --dry-run
