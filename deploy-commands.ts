@@ -4,7 +4,6 @@ import { logtail } from "@utils/logtail";
 import { Command } from "@commands/types";
 import { steam } from "@commands/steam";
 import { help } from "@commands/help";
-import axios from "axios";
 import { birthday } from "@commands/birthday";
 import { twitch } from "@commands/twitch";
 
@@ -19,21 +18,6 @@ const commandsRoute = process.env.TEST_SERVER_ID
       process.env.TEST_SERVER_ID,
     )
   : Routes.applicationCommands(process.env.CLIENT_ID);
-
-(async () =>
-  axios.post(
-    `https://discordbotlist.com/api/v1/bots/${process.env.CLIENT_ID}/commands`,
-    commandsJSON,
-    {
-      headers: {
-        Authorization: process.env.DBL_TOKEN,
-      },
-    },
-  ))().catch((err) =>
-  logtail.error("Error updating commands in DiscordBotList", {
-    error: JSON.stringify(err),
-  }),
-);
 
 rest
   .put(commandsRoute, {
