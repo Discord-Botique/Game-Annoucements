@@ -6,7 +6,7 @@
   "author": "Luis Augusto",
   "license": "MIT",
   "scripts": {
-    "generate": "./generate-types.sh",
+    "generate": "npx supabase gen types typescript --local > ./supabase/db.types.ts",
     "start:local": "yarn deploy-commands:local && node --env-file=.env ./dist/index.js",
     "start": "yarn deploy-commands && node ./dist/index.js",
     "watch": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",

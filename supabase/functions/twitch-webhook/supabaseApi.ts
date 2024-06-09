@@ -1,5 +1,5 @@
 import { createClient } from "supabase";
-import type { Database } from "../_shared/supabase.types.ts";
+import type { Database } from "../../db.types";
 
 export const getSubscriptions = async (user_id: string) => {
   const sbURL = Deno.env.get("SUPABASE_URL");

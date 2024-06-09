@@ -1,12 +1,13 @@
 import axios, { create, AxiosInstance } from "axios";
 import { logtail } from "@utils/logtail";
-import { TwitchSubscription, TwitchSubscriptionResponse } from "./types";
-import { supabase } from "@utils/supabase";
-import { ChatInputCommandInteraction } from "discord.js";
 import {
   OauthResponse,
+  TwitchSubscription,
+  TwitchSubscriptionResponse,
   TwitchUser,
-} from "../../supabase/functions/_shared/twitch.types";
+} from "./types";
+import { supabase } from "@utils/supabase";
+import { ChatInputCommandInteraction } from "discord.js";
 
 export class TwitchApi {
   private axios: AxiosInstance = create();
