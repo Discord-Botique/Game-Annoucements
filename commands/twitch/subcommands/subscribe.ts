@@ -9,43 +9,53 @@ export const subscribe = async (
   if (!interaction.guildId) return;
 
   const role = interaction.options.getRole("role-mention");
+  const username = interaction.options.getString("username", true);
 
   try {
     const hasAccess = await confirmChannelAccess(interaction);
     if (!hasAccess) return;
 
-    const twitch = new TwitchApi(interaction);
+    const twitch = new TwitchApi();
     await twitch.isReady();
 
-    if (!twitch.user)
+    const twitchUser = await twitch.findUser(username);
+    if (!twitchUser)
       return interaction.reply({
         content: "Could not find the twitch user",
         ephemeral: true,
       });
 
-    const supabaseSubscription = await twitch.getSubscription();
+    const supabaseSubscription = await twitch.getSubscription({
+      channel_id: interaction.channelId,
+      user_id: twitchUser.id,
+    });
 
     if (supabaseSubscription)
       return interaction.reply({
-        content: `You are already subscribed to ${twitch.user.display_name} on this channel!`,
+        content: `You are already subscribed to ${twitchUser.display_name} on this channel!`,
         ephemeral: true,
       });
 
-    await twitch.createSubscription();
+    await twitch.createSubscription({
+      channel_id: interaction.channelId,
+      server_id: interaction.guildId,
+      user_id: twitchUser.id,
+      role_id: role?.id,
+    });
 
     await interaction.reply({
-      content: `Subscribed to ${twitch.user.display_name} on Twitch! ${
+      content: `Subscribed to ${twitchUser.display_name} on Twitch! ${
         role ? mentionRole(role.id, interaction.guild) : "Members"
       } will now receive announcements when they go live in the ${channelMention(
         interaction.channelId,
       )} channel.`,
       embeds: [
         {
-          title: twitch.user.display_name,
-          url: `https://twitch.tv/${twitch.user.login}`,
-          description: twitch.user.description,
+          title: twitchUser.display_name,
+          url: `https://twitch.tv/${twitchUser.login}`,
+          description: twitchUser.description,
           image: {
-            url: twitch.user.profile_image_url,
+            url: twitchUser.profile_image_url,
           },
         },
       ],

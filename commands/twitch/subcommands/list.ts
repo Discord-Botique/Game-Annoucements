@@ -7,10 +7,10 @@ export const list = async (
 ): Promise<unknown> => {
   if (!interaction.guildId) return;
 
-  const twitch = new TwitchApi(interaction);
+  const twitch = new TwitchApi();
   await twitch.isReady();
 
-  const subscriptions = await twitch.getAllSubscriptions();
+  const subscriptions = await twitch.getAllSubscriptions(interaction.guildId);
 
   if (!subscriptions || subscriptions.length === 0)
     return interaction.reply(

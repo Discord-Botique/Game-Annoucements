@@ -2,26 +2,21 @@ import axios, { create, AxiosInstance } from "axios";
 import { logtail } from "@utils/logtail";
 import {
   OauthResponse,
+  StreamResponse,
   TwitchSubscription,
   TwitchSubscriptionResponse,
   TwitchUser,
 } from "./types";
 import { supabase } from "@utils/supabase";
-import { ChatInputCommandInteraction } from "discord.js";
 
 export class TwitchApi {
   private axios: AxiosInstance = create();
   private ready = false;
-  user: TwitchUser | undefined;
-  private interaction: ChatInputCommandInteraction;
 
-  constructor(interaction: ChatInputCommandInteraction) {
-    this.interaction = interaction;
+  constructor() {
     TwitchApi.authorize()
-      .then(async (axiosInstance) => {
+      .then((axiosInstance) => {
         this.axios = axiosInstance;
-        const username = interaction.options.getString("username");
-        if (username) this.user = await this.findUser(username);
         this.ready = true;
       })
       .catch((e) =>
@@ -68,7 +63,7 @@ export class TwitchApi {
   }
 
   // https://dev.twitch.tv/docs/api/reference/#get-users
-  private async findUser(username: string): Promise<TwitchUser | undefined> {
+  async findUser(username: string): Promise<TwitchUser | undefined> {
     try {
       const response = await this.axios.get<{
         data: TwitchUser[];
@@ -105,33 +100,28 @@ export class TwitchApi {
   }
 
   // https://dev.twitch.tv/docs/api/reference/#get-eventsub-subscriptions
-  async getTwitchSubscription(): Promise<TwitchSubscription | undefined> {
-    if (!this.user) throw new Error("User not found");
+  async getTwitchSubscription(
+    user_id: string,
+  ): Promise<TwitchSubscription | undefined> {
     try {
       const response = await this.axios.get<TwitchSubscriptionResponse>(
         "/eventsub/subscriptions",
         {
-          params: {
-            user_id: this.user.id,
-          },
+          params: { user_id },
         },
       );
 
       return response.data.data[0];
     } catch (e) {
-      await logtail.error(
-        `Error getting subscriptions for user ${this.user.id}`,
-        {
-          error: String(e),
-        },
-      );
+      await logtail.error(`Error getting subscriptions for user ${user_id}`, {
+        error: String(e),
+      });
       return undefined;
     }
   }
 
   // https://api.twitch.tv/helix/eventsub/subscriptions
-  async createTwitchSubscription() {
-    if (!this.user) throw new Error("User not found");
+  async createTwitchSubscription(broadcaster_user_id: string) {
     try {
       const data = await this.axios.post<TwitchSubscriptionResponse>(
         "/eventsub/subscriptions",
@@ -139,7 +129,7 @@ export class TwitchApi {
           type: "stream.online",
           version: "1",
           condition: {
-            broadcaster_user_id: this.user.id,
+            broadcaster_user_id,
           },
           transport: {
             method: "webhook",
@@ -152,7 +142,7 @@ export class TwitchApi {
       return data.data.data[0];
     } catch (e) {
       await logtail.error(
-        `Error creating subscription for user ${this.user.id}`,
+        `Error creating subscription for user ${broadcaster_user_id}`,
         {
           error: String(e),
         },
@@ -161,37 +151,42 @@ export class TwitchApi {
     }
   }
 
-  async getAllSubscriptions() {
+  async getAllSubscriptions(server_id: string) {
     const { data } = await supabase
       .from("twitch_subscriptions")
       .select()
-      .match({
-        server_id: this.interaction.guildId,
-      })
+      .match({ server_id })
       .order("channel_id", { ascending: true });
 
     return data;
   }
 
-  async getSubscription() {
-    if (!this.user) throw new Error("User not found");
+  async getSubscription(params: { channel_id?: string; user_id: string }) {
     const data = await supabase
       .from("twitch_subscriptions")
       .select()
-      .match({ channel_id: this.interaction.channelId, user_id: this.user.id })
+      .match(params)
       .maybeSingle();
 
     return data.data;
   }
 
-  async createSubscription() {
-    if (!this.user || !this.interaction.guildId)
-      throw new Error("User or Guild not found");
-    const twitchSubscription = await this.getTwitchSubscription();
+  async createSubscription({
+    server_id,
+    channel_id,
+    user_id,
+    role_id,
+  }: {
+    server_id: string;
+    channel_id: string;
+    user_id: string;
+    role_id?: string;
+  }) {
+    const twitchSubscription = await this.getTwitchSubscription(user_id);
     let subscription_id: string;
 
     if (!twitchSubscription) {
-      const twitchSubscription = await this.createTwitchSubscription();
+      const twitchSubscription = await this.createTwitchSubscription(user_id);
       if (!twitchSubscription) throw new Error("Could not create subscription");
       subscription_id = twitchSubscription.id;
     } else {
@@ -199,34 +194,33 @@ export class TwitchApi {
     }
 
     const { error } = await supabase.from("twitch_subscriptions").insert({
-      server_id: this.interaction.guildId,
-      channel_id: this.interaction.channelId,
-      role_id: this.interaction.options.getRole("role-mention")?.id,
+      server_id,
+      channel_id,
+      role_id,
       subscription_id,
-      user_id: this.user.id,
+      user_id,
     });
 
     if (error) throw new Error(error.message);
   }
 
-  async deleteSubscription() {
-    if (!this.user) throw new Error("User not found");
+  async deleteSubscription(channel_id: string, user_id: string) {
     const { error } = await supabase
       .from("twitch_subscriptions")
       .delete()
-      .match({ channel_id: this.interaction.channelId, user_id: this.user.id });
+      .match({ channel_id, user_id });
 
     if (error) throw new Error(error.message);
 
     const remainingSubscriptions = await supabase
       .from("twitch_subscriptions")
       .select()
-      .match({ user_id: this.user.id });
+      .match({ user_id });
 
     // if there are still subscriptions for that user, we shouldn't delete the twitch webhook
     if (remainingSubscriptions.data?.length) return;
 
-    const twitchSubscription = await this.getTwitchSubscription();
+    const twitchSubscription = await this.getTwitchSubscription(user_id);
     if (!twitchSubscription) return;
     await this.deleteTwitchSubscription(twitchSubscription.id);
   }
@@ -244,5 +238,20 @@ export class TwitchApi {
       });
       return undefined;
     }
+  }
+
+  async getLiveStream(user_id: string) {
+    const streamParams = new URLSearchParams({
+      user_id,
+      type: "live",
+    });
+
+    // https://dev.twitch.tv/docs/api/reference/#get-streams
+    const streams = await this.axios.get<StreamResponse | undefined>(
+      `https://api.twitch.tv/helix/streams?${streamParams.toString()}`,
+      {},
+    );
+
+    return streams.data?.data[0];
   }
 }

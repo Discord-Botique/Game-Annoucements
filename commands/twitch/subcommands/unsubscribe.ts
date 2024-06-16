@@ -6,30 +6,35 @@ export const unsubscribe = async (
   interaction: ChatInputCommandInteraction,
 ): Promise<unknown> => {
   if (!interaction.guildId) return;
+  const username = interaction.options.getString("username", true);
 
   try {
-    const twitch = new TwitchApi(interaction);
+    const twitch = new TwitchApi();
     await twitch.isReady();
 
-    if (!twitch.user)
+    const twitchUser = await twitch.findUser(username);
+    if (!twitchUser)
       return interaction.reply({
         content: "Could not find the twitch user",
         ephemeral: true,
       });
 
-    const supabaseSubscription = await twitch.getSubscription();
+    const supabaseSubscription = await twitch.getSubscription({
+      channel_id: interaction.channelId,
+      user_id: twitchUser.id,
+    });
 
     if (!supabaseSubscription)
       return interaction.reply({
-        content: `You are not subscribed to ${twitch.user.display_name} on this channel!`,
+        content: `You are not subscribed to ${twitchUser.display_name} on this channel!`,
         ephemeral: true,
       });
 
-    await twitch.deleteSubscription();
+    await twitch.deleteSubscription(interaction.channelId, twitchUser.id);
     await interaction.reply({
       content: `${channelMention(
         interaction.channelId,
-      )} is no longer subscribed to ${twitch.user.display_name} on Twitch! `,
+      )} is no longer subscribed to ${twitchUser.display_name} on Twitch! `,
     });
   } catch (error) {
     await logtail.error(String(error), {
