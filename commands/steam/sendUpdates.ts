@@ -20,7 +20,7 @@ const messageOptions = (
   );
 
   const url = content.match(
-    /(http)?s?:?(\/\/[^"']*?\.(?:png|jpg|jpeg|gif|svg))/gi,
+    /(http)s?:?(\/\/[^"']*?\.(?:png|jpg|jpeg|gif|svg))/gi,
   )?.[0];
 
   return {
