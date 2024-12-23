@@ -4,7 +4,6 @@ import { Client, Guild, MessageCreateOptions } from "discord.js";
 import { logtail } from "@utils/logtail";
 import type { NewsItem } from "@apis/steam/types";
 import { getGameData } from "./utils";
-import { supabase } from "@utils/supabase";
 import { SteamApi } from "@apis/steam";
 import { mentionRole } from "@utils";
 
@@ -104,14 +103,9 @@ const triggerMessages = async (client: Client<true>) => {
             await channel.send(message).catch((error: unknown) => {
               throw new Error(JSON.stringify({ message, error }));
             });
-            await supabase.from("steam_games").upsert([
-              {
-                id: subscription.game_id,
-                name: gameData.name,
-                last_announcement_id: newsItem.gid,
-                updated_at: new Date().toISOString(),
-              },
-            ]);
+
+            const steam = new SteamApi(subscription.game_id);
+            steam.updateGameDetails({ name: gameData.name, newsItem });
           } catch (e) {
             await logtail.error("Error sending message", {
               error: String(e),

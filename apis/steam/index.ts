@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AppNews, AppDetails, GameData } from "./types";
+import { AppNews, AppDetails, GameData, NewsItem } from "./types";
 import { logtail } from "@utils/logtail";
 import { supabase } from "@utils/supabase";
 
@@ -46,7 +46,7 @@ export class SteamApi {
       const gameData = response?.data[this.gameId];
 
       if (gameData?.success) {
-        await this.updateGameDetails(gameData.data);
+        await this.updateGameDetails({ name: gameData.data.name });
         return gameData.data;
       }
 
@@ -59,13 +59,19 @@ export class SteamApi {
     }
   }
 
-  private async updateGameDetails(gameData: GameData) {
-    const latestNews = await this.getNewsForGame();
+  async updateGameDetails({
+    name,
+    newsItem,
+  }: {
+    name: string;
+    newsItem?: NewsItem;
+  }) {
+    const latestNews = newsItem ?? (await this.getNewsForGame());
 
     await supabase.from("steam_games").upsert([
       {
-        name: gameData.name,
-        id: gameData.steam_appid,
+        name,
+        id: this.gameId,
         updated_at: new Date().toISOString(),
         last_announcement_id: latestNews?.gid,
       },
