@@ -39,6 +39,39 @@ export type Database = {
         }
         Relationships: []
       }
+      fortnite_subscriptions: {
+        Row: {
+          channel_id: string
+          created_at: string
+          disabled_at: string | null
+          id: number
+          last_announcement_id: string | null
+          role_id: string | null
+          server_id: string
+          updated_at: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          disabled_at?: string | null
+          id?: number
+          last_announcement_id?: string | null
+          role_id?: string | null
+          server_id: string
+          updated_at?: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          disabled_at?: string | null
+          id?: number
+          last_announcement_id?: string | null
+          role_id?: string | null
+          server_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       steam_games: {
         Row: {
           created_at: string
@@ -225,6 +258,7 @@ export type Database = {
           owner_id: string | null
           path_tokens: string[] | null
           updated_at: string | null
+          user_metadata: Json | null
           version: string | null
         }
         Insert: {
@@ -238,6 +272,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Update: {
@@ -251,6 +286,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Relationships: [
@@ -272,6 +308,7 @@ export type Database = {
           key: string
           owner_id: string | null
           upload_signature: string
+          user_metadata: Json | null
           version: string
         }
         Insert: {
@@ -282,6 +319,7 @@ export type Database = {
           key: string
           owner_id?: string | null
           upload_signature: string
+          user_metadata?: Json | null
           version: string
         }
         Update: {
@@ -292,6 +330,7 @@ export type Database = {
           key?: string
           owner_id?: string | null
           upload_signature?: string
+          user_metadata?: Json | null
           version?: string
         }
         Relationships: [
@@ -428,6 +467,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      operation: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       search: {
         Args: {
           prefix: string
@@ -538,5 +581,20 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 

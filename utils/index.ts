@@ -23,7 +23,7 @@ export const confirmChannelAccess = async (
 };
 
 export const mentionRole = (roleId: string, guild: Guild | null) => {
-  const everyoneId = guild?.roles.everyone?.id;
+  const everyoneId = guild?.roles.everyone?.id ?? guild?.id;
 
   return roleId === everyoneId ? "@everyone" : roleMention(roleId);
 };

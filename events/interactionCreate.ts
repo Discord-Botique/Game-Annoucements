@@ -4,8 +4,9 @@ import { steam } from "@commands/steam";
 import { help } from "@commands/help";
 import { birthday } from "@commands/birthday";
 import { twitch } from "@commands/twitch";
+import { fortnite } from "@commands/fortnite";
 
-const commands: Command[] = [steam, help, birthday, twitch];
+const commands: Command[] = [steam, help, birthday, twitch, fortnite];
 
 export const interactionCreate: Event<"interactionCreate"> = {
   name: "interactionCreate",
