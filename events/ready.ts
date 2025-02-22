@@ -13,12 +13,7 @@ export const ready: Event<"ready"> = {
     await sendUpdates(client);
     await checkBirthdays(client);
     client.user.setPresence({
-      activities: [
-        {
-          type: ActivityType.Custom,
-          name: "v1.8.0 | /help",
-        },
-      ],
+      activities: [{ type: ActivityType.Custom, name: "v1.9.0 | /help" }],
     });
   },
 };
