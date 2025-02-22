@@ -57,24 +57,22 @@ const removeBirthdayRoles = async (guild: Guild) => {
   }
 };
 
-const sendMessageForUsers = async (users: User[], guild: Guild) => {
-  const roleId = await removeBirthdayRoles(guild);
+const sendMessageForUsers = async (
+  users: User[],
+  guild: Guild,
+  roleId?: string,
+) => {
   return Promise.all(
     users.map(async ({ user_id, channel_id, has_year, birthday }) => {
       const channel = await guild.channels.fetch(channel_id);
       if (!channel || !channel.isTextBased()) return;
-      await logtail.debug("Sending birthday message", {
-        user_id,
-        channel_id,
-      });
+      await logtail.debug("Sending birthday message", { user_id, channel_id });
       const difference = differenceInYears(new Date(), new Date(birthday));
 
       const member = await guild.members.fetch(user_id);
       if (roleId)
         await member.roles.add(roleId).catch(async (e) => {
-          await logtail.info("Failed to add birthday role", {
-            e: String(e),
-          });
+          await logtail.info("Failed to add birthday role", { e: String(e) });
         });
 
       return channel.send(
@@ -94,7 +92,9 @@ const triggerMessages = async (client: Client<true>, once?: boolean) => {
       const guild = await oathGuild.fetch();
       const users = await getUsersWithAnniversaries(guild);
       await logtail.debug(`Found ${users.length} users with anniversaries.`);
-      if (users.length > 0) await sendMessageForUsers(users, guild);
+      const roleId = await removeBirthdayRoles(guild);
+
+      if (users.length > 0) await sendMessageForUsers(users, guild, roleId);
     }),
   );
 

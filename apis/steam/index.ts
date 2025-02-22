@@ -14,13 +14,7 @@ export class SteamApi {
     try {
       const gameInfo = await axios.get<AppNews>(
         "https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002",
-        {
-          params: {
-            appid: this.gameId,
-            maxlength: 500,
-            count: 1,
-          },
-        },
+        { params: { appid: this.gameId, maxlength: 500, count: 1 } },
       );
 
       return gameInfo.data.appnews.newsitems?.[0];
@@ -36,11 +30,7 @@ export class SteamApi {
     try {
       const response = await axios.get<AppDetails>(
         "https://store.steampowered.com/api/appdetails",
-        {
-          params: {
-            appids: this.gameId,
-          },
-        },
+        { params: { appids: this.gameId } },
       );
 
       const gameData = response?.data[this.gameId];
@@ -82,7 +72,7 @@ export class SteamApi {
     const { data, error } = await supabase
       .from("steam_subscriptions")
       .select("*, steam_games(*)")
-      .eq("game_id", String(this.gameId))
+      .eq("game_id", this.gameId)
       .eq("channel_id", channelId)
       .maybeSingle();
 
@@ -94,9 +84,7 @@ export class SteamApi {
     const { data } = await supabase
       .from("steam_subscriptions")
       .select("*, steam_games(name, last_announcement_id)")
-      .match({
-        server_id: guildId,
-      })
+      .match({ server_id: guildId })
       .order("channel_id", { ascending: true });
 
     return data;
