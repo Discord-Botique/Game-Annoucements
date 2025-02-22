@@ -1,14 +1,12 @@
 import { ready } from "@events/ready";
-import { Client, ClientEvents, GatewayIntentBits, Partials } from "discord.js";
+import { Client, ClientEvents, GatewayIntentBits } from "discord.js";
 import type { Event } from "@events/types";
 import { logtail } from "@utils/logtail";
 import { interactionCreate } from "@events/interactionCreate";
 import { voiceStateUpdate } from "@events/voiceStateUpdate";
 
 const client = new Client({
-  allowedMentions: {
-    parse: ["everyone", "roles", "users"],
-  },
+  allowedMentions: { parse: ["everyone", "roles", "users"] },
   // https://discord.com/developers/docs/topics/gateway#list-of-intents
   intents: [GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.Guilds],
   // https://discordjs.guide/popular-topics/partials.html#enabling-partials
